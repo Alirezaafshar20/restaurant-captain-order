@@ -6,9 +6,17 @@ const normalize = (t: string) =>
     .replace(/[ك]/g, 'ک')
     .replace(/[‌\s]+/g, ' ')
     .trim();
-export function guide(text: string, unavailable: string[] = []) {
+export function guide(
+  text: string,
+  unavailable: string[] = [],
+  rankedIds: string[] = [],
+) {
   const t = normalize(text);
-  const available = menu.filter((m) => !unavailable.includes(m.id));
+  const rank = (id: string) =>
+    rankedIds.includes(id) ? rankedIds.indexOf(id) : Number.MAX_SAFE_INTEGER;
+  const available = menu
+    .filter((m) => !unavailable.includes(m.id))
+    .toSorted((a, b) => rank(a.id) - rank(b.id));
   if (/بدون|نمی.?خوا|دوست ندار|نه /.test(t))
     return {
       text: 'برای کنار گذاشتن یک ماده یا انتخاب مطابق محدودیت شما، ترکیب سس‌ها و شیوهٔ آماده‌سازی هم مهم است. راهنمای فعلی نبودن آن ماده را تضمین نمی‌کند؛ کاپیتان می‌تواند با آشپزخانه هماهنگ کند.',
@@ -65,7 +73,19 @@ export function guide(text: string, unavailable: string[] = []) {
     reason = 'اگر گوشت ترجیح می‌دهید، این گزینه‌های منو را ببینید:';
   } else if (/دسر|شیرین/.test(t)) {
     candidates = available.filter((m) => m.category === 'دسر');
-    reason = 'برای پایان میزبانی، این دسرها در منو هستند:';
+    reason = 'از بخش دسر مویا:';
+  } else if (/قهوه/.test(t) && !/چای/.test(t)) {
+    candidates = available.filter(
+      (m) =>
+        m.category === 'نوشیدنی گرم' &&
+        /اسپرسو|قهوه|لاته|کاپوچینو/.test(m.name + ' ' + m.description),
+    );
+    reason = 'از انتخاب‌های قهوهٔ مویا:';
+  } else if (/چای/.test(t) && !/قهوه/.test(t)) {
+    candidates = available.filter(
+      (m) => m.category === 'نوشیدنی گرم' && /چای/.test(m.name),
+    );
+    reason = 'از انتخاب‌های چای مویا:';
   } else if (/قهوه|نوشیدنی|چای/.test(t)) {
     candidates = available.filter((m) => m.category === 'نوشیدنی گرم');
     reason = 'از بخش نوشیدنی‌های گرم مویا:';

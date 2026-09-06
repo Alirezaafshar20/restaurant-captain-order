@@ -31,6 +31,13 @@ import { Button } from '@/components/ui/button';
 import { useMenuTools } from '@/components/use-menu-tools';
 import { VisitArchive } from '@/components/visit-archive';
 import {
+  useTaste,
+  TasteWelcome,
+  TasteFeedback,
+} from '@/components/taste-experience';
+import { TasteManagement } from '@/components/taste-management';
+import { emptyContext, inOccasion, type TasteContext } from '@/lib/taste';
+import {
   Dialog,
   DialogContent,
   DialogTitle,
@@ -109,6 +116,7 @@ export default function Experience({
   initialTable?: number;
 }) {
   const [state, setState] = useState<Workspace>(initialState);
+  const taste = useTaste();
   const [role, setRole] = useState<Role>(initialRole);
   const [table, setTable] = useState(initialTable);
   const [loaded, setLoaded] = useState(false);
@@ -116,7 +124,7 @@ export default function Experience({
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
-  const [category, setCategory] = useState('غذای اصلی');
+  const [category, setCategory] = useState('همه');
   const [search, setSearch] = useState('');
   const [detail, setDetail] = useState<MenuItem | null>(null);
   const [itemNote, setItemNote] = useState('');
@@ -169,6 +177,16 @@ export default function Experience({
   const visit = state.visits.find(
     (v) => v.table === table && v.phase === 'open',
   );
+  const tasteVisit = useRef('');
+  const resetTaste = taste.setContext;
+  useEffect(() => {
+    const key = String(table) + ':' + (visit?.id || 'none');
+    if (tasteVisit.current && tasteVisit.current !== key) {
+      resetTaste(emptyContext());
+      setCategory('همه');
+    }
+    tasteVisit.current = key;
+  }, [table, visit?.id, resetTaste]);
   const active = state.visits.filter((v) => v.phase === 'open');
   const refresh = useCallback(async () => {
     try {
@@ -257,6 +275,7 @@ export default function Experience({
   );
   const filtered = menu.filter(
     (m) =>
+      (role !== 'guest' || inOccasion(m.category, taste.context.occasion)) &&
       (category === 'همه' || m.category === category) &&
       (!search ||
         `${m.name} ${m.description} ${m.en}`
@@ -333,7 +352,24 @@ export default function Experience({
             </div>
           </header>
           <main className="guest-main">
-            <section className="welcome">
+            <TasteWelcome
+              model={taste}
+              unavailable={state.unavailable}
+              cartIds={draft.map((d) => d.menuId)}
+              onCaptain={() => openService()}
+              onItem={(id) => openDetail(menu.find((m) => m.id === id)!)}
+              onOccasion={(occasion) => {
+                setCategory(
+                  occasion === 'cafe'
+                    ? 'نوشیدنی گرم'
+                    : occasion === 'dining'
+                      ? 'غذای اصلی'
+                      : 'همه',
+                );
+                setSearch('');
+              }}
+            />
+            <section className="welcome taste-secondary-welcome">
               <div className="welcome-copy">
                 <div className="eyebrow">
                   <span />
@@ -353,7 +389,7 @@ export default function Experience({
                   className="welcome-link"
                   onClick={() => setAssistantOpen(true)}
                 >
-                  <Sparkles size={17} /> با سلیقهٔ من پیشنهاد بده{' '}
+                  <Sparkles size={17} /> گفت‌وگو دربارهٔ منو{' '}
                   <ArrowUpLeft size={17} />
                 </button>
               </div>
@@ -440,11 +476,16 @@ export default function Experience({
                 className="menu-tabs"
               >
                 <TabsList variant="line">
-                  {categories.map((c) => (
-                    <TabsTrigger key={c} value={c}>
-                      {c}
-                    </TabsTrigger>
-                  ))}
+                  {categories
+                    .filter(
+                      (c) =>
+                        c === 'همه' || inOccasion(c, taste.context.occasion),
+                    )
+                    .map((c) => (
+                      <TabsTrigger key={c} value={c}>
+                        {c}
+                      </TabsTrigger>
+                    ))}
                 </TabsList>
                 <TabsContent value={category}>
                   <div className="menu-heading">
@@ -685,7 +726,10 @@ export default function Experience({
             </div>
             <Tabs
               value={staffTab}
-              onValueChange={(v) => setStaffTab(String(v))}
+              onValueChange={(v) => {
+                setStaffTab(String(v));
+                if (v === 'taste') void taste.refresh();
+              }}
               className="staff-tabs"
             >
               <TabsList variant="line">
@@ -702,9 +746,14 @@ export default function Experience({
                   <TabsTrigger value="menu">موجودی منو</TabsTrigger>
                 )}
                 <TabsTrigger value="history">سوابق میزبانی</TabsTrigger>
+                {role === 'manager' && (
+                  <TabsTrigger value="taste">دانش و پیشنهاد</TabsTrigger>
+                )}
               </TabsList>
             </Tabs>
-            {staffTab === 'requests' ? (
+            {staffTab === 'taste' && role === 'manager' ? (
+              <TasteManagement model={taste} />
+            ) : staffTab === 'requests' ? (
               <div className="request-grid">
                 {active.flatMap((v) =>
                   v.requests
@@ -1532,6 +1581,7 @@ export default function Experience({
                   </div>
                 ))}
               </div>
+              <TasteFeedback model={taste} items={visit.items} />
               <div className="bill-summary">
                 <div>
                   <span>جمع سفارش</span>
@@ -1991,7 +2041,8 @@ export default function Experience({
         </DialogContent>
       </Dialog>
       <MenuAssistant
-        key={visit?.id || table}
+        key={(visit?.id || table) + ':' + JSON.stringify(taste.context)}
+        tasteContext={taste.context}
         open={assistantOpen}
         setOpen={setAssistantOpen}
         unavailable={state.unavailable}
@@ -2026,12 +2077,14 @@ function Empty({
 }
 type Message = { role: 'user' | 'assistant'; text: string; items?: string[] };
 function MenuAssistant({
+  tasteContext,
   open,
   setOpen,
   unavailable,
   add,
   requestCaptain,
 }: {
+  tasteContext: TasteContext;
   open: boolean;
   setOpen: (v: boolean) => void;
   unavailable: string[];
@@ -2041,7 +2094,10 @@ function MenuAssistant({
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      text: 'به مویا خوش آمدید. از طعم دلخواهتان بگویید؛ گوشت، مرغ، دریایی یا یک پیش‌غذای خوش‌طعم؟ می‌توانم مواد اولیه و قیمت غذاها را هم مقایسه کنم.',
+      text:
+        tasteContext.occasion === 'cafe'
+          ? 'به کافهٔ مویا خوش آمدید. قهوه، چای یا دسر؟ می‌توانم گزینه‌های منو و قیمتشان را مقایسه کنم.'
+          : 'به مویا خوش آمدید. می‌توانم در انتخاب غذا یا منوی کافه کمک کنم. انتخاب امروزتان را بگویید.',
     },
   ]);
   const [input, setInput] = useState('');
@@ -2073,6 +2129,7 @@ function MenuAssistant({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text,
+          tasteContext,
           history: messages
             .slice(-8)
             .map((m) => ({ role: m.role, text: m.text.slice(0, 1500) })),
@@ -2184,8 +2241,9 @@ function MenuAssistant({
         </div>
         <div className="quick-prompts">
           {[
-            'غذای دریایی می‌خواهم',
-            'مرغ پیشنهاد بده',
+            ...(tasteContext.occasion === 'cafe'
+              ? ['قهوه پیشنهاد بده', 'دسر پیشنهاد بده']
+              : ['غذای دریایی می‌خواهم', 'مرغ پیشنهاد بده']),
             'تا یک میلیون تومان',
             'حساسیت غذایی دارم',
           ].map((t) => (

@@ -15,6 +15,13 @@
       "when": 1788630517671,
       "tag": "0001_red_praxagora",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788711474580,
+      "tag": "0002_pink_agent_brand",
+      "breakpoints": true
     }
   ]
 }

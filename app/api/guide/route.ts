@@ -3,6 +3,8 @@ import { aiGuide } from '@/lib/ai-guide';
 import { database } from '@/lib/db';
 import { workspaceOwner } from '@/lib/identity';
 import type { Workspace } from '@/lib/domain';
+import { parseContext, recommend, type Decision } from '@/lib/taste';
+import { tasteSnapshot } from '@/lib/taste-store';
 function config() {
   const e = env as unknown as {
     OPENAI_API_KEY?: string;
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
     const owner = workspaceOwner(request);
     const raw = await request.text();
     if (raw.length > 16000) throw new Error('پیام بیش از حد طولانی است.');
-    const { text, history = [] } = JSON.parse(raw);
+    const { text, history = [], tasteContext } = JSON.parse(raw);
     if (
       typeof text !== 'string' ||
       !text.trim() ||
@@ -46,10 +48,33 @@ export async function POST(request: Request) {
       .prepare('SELECT data FROM workspaces WHERE owner=?')
       .bind(owner)
       .first<{ data: string }>();
-    const unavailable = row
+    let unavailable = row
       ? (JSON.parse(row.data) as Workspace).unavailable
       : [];
     const cfg = config();
+    let ranking: Decision | null = null;
+    let selectionContext = '';
+    if (tasteContext) {
+      const context = parseContext(tasteContext);
+      const snapshot = await tasteSnapshot(owner);
+      ranking = recommend(
+        context,
+        unavailable,
+        snapshot.knowledge,
+        snapshot.profile ? snapshot.feedback : [],
+        [],
+        'conversation',
+        new Date().toISOString(),
+      );
+      unavailable = [
+        ...new Set([...unavailable, ...ranking.excluded.map((e) => e.itemId)]),
+      ];
+      selectionContext = JSON.stringify({
+        occasion: context.occasion,
+        preferences: context.preferences,
+        rankedMenuIds: ranking.ranked.map((r) => r.itemId),
+      });
+    }
     if (cfg.apiKey) {
       const now = new Date().toISOString();
       const buckets = [
@@ -77,7 +102,12 @@ export async function POST(request: Request) {
           { status: 429 },
         );
     }
-    return Response.json(await aiGuide(text, history, unavailable, cfg), {
+    const answer = await aiGuide(text, history, unavailable, {
+      ...cfg,
+      selectionContext,
+      rankedIds: ranking?.ranked.map((r) => r.itemId),
+    });
+    return Response.json(answer, {
       headers: { 'Cache-Control': 'no-store' },
     });
   } catch (e) {

@@ -3183,3 +3183,437 @@ textarea {
     break-inside: avoid;
   }
 }
+
+/* The visit starts with the guest's purpose, including a coffee-only visit. */
+.taste-secondary-welcome,
+.taste-secondary-welcome + .hospitality-strip {
+  display: none;
+}
+.taste-welcome {
+  padding: 40px 0 24px;
+  border-bottom: 1px solid var(--border);
+}
+.taste-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+.taste-intro h1 {
+  font-size: clamp(28px, 3.7vw, 46px);
+  line-height: 1.5;
+  color: #182d41;
+  margin: 8px 0;
+}
+.taste-intro p,
+.taste-results > p {
+  font-size: 16px;
+  line-height: 1.9;
+  color: #53606b;
+}
+.occasion-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.occasion-card {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #dbe2e8;
+  padding: 24px 20px;
+  border-radius: 12px;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.occasion-card.chosen {
+  background: #182d41;
+  color: #fff;
+  border-color: #182d41;
+}
+.occasion-card:hover {
+  border-color: #ad8a50;
+}
+.occasion-card span {
+  flex: 1;
+}
+.occasion-card b {
+  display: block;
+  font-size: 21px;
+  font-weight: 500;
+}
+.occasion-card small {
+  display: block;
+  font-size: 14px;
+  margin-top: 6px;
+  color: #637381;
+}
+.occasion-card.chosen small {
+  color: #d1dbe4;
+}
+.occasion-card > [data-slot='radio-group-item'] {
+  flex-shrink: 0;
+}
+.taste-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.taste-actions > span,
+.taste-hint {
+  font-size: 14px;
+  line-height: 1.9;
+  color: #5a6874;
+}
+.returning-guest {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  font-size: 16px;
+}
+.taste-results {
+  margin-top: 28px;
+  border-top: 1px solid #dbe2e8;
+  padding-top: 22px;
+}
+.taste-results h2 {
+  font-size: 22px;
+}
+.taste-candidates {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+.taste-candidates article {
+  border: 1px solid #dbe2e8;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+.taste-candidates article > img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+.taste-candidates article > div {
+  padding: 18px;
+}
+.taste-candidates h3 {
+  font-size: 20px;
+  margin-bottom: 7px;
+}
+.taste-candidates b {
+  font-size: 16px;
+  font-weight: 500;
+}
+.taste-candidates p {
+  font-size: 15px;
+  line-height: 1.9;
+  margin: 12px 0 6px;
+}
+.taste-candidates small {
+  color: #62717d;
+  font-size: 13px;
+  line-height: 1.8;
+  display: block;
+}
+.taste-save-invite {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 22px;
+  margin-top: 22px;
+  border: 1px solid #c7aa77;
+  border-radius: 10px;
+  background: #fff;
+}
+.taste-save-invite > div {
+  flex: 1;
+}
+.taste-save-invite b {
+  font-weight: 500;
+  font-size: 18px;
+}
+.taste-save-invite p {
+  font-size: 14px;
+  margin-top: 6px;
+  color: #5a6874;
+}
+.taste-profile-dialog {
+  max-width: 660px !important;
+  max-height: 88dvh;
+  overflow-y: auto;
+}
+.taste-profile-dialog fieldset {
+  margin: 6px 0;
+  border: 0;
+  padding: 0;
+}
+.taste-profile-dialog legend {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.taste-chip-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.taste-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 1.8;
+  cursor: pointer;
+  padding: 7px 4px;
+}
+.taste-chip-grid .taste-check {
+  background: #f2f5f7;
+  padding: 8px 12px;
+  border-radius: 7px;
+}
+.taste-check [data-slot='checkbox'],
+.taste-check [data-slot='radio-group-item'] {
+  min-width: 16px;
+}
+.taste-account {
+  background: #f2f5f7;
+  border-radius: 10px;
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+}
+.taste-account h3 {
+  font-size: 20px;
+}
+.taste-account p {
+  font-size: 16px;
+  line-height: 1.8;
+}
+.taste-account small {
+  display: block;
+  font-size: 13px;
+  color: #5a6874;
+  line-height: 1.9;
+}
+.taste-account-tools {
+  border-top: 1px solid #dbe2e8;
+  padding-top: 12px;
+}
+.taste-delete {
+  padding: 16px;
+  border: 1px solid #e0b7b7;
+  border-radius: 8px;
+}
+.taste-delete p {
+  margin-bottom: 12px;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.taste-error {
+  color: #922c2c;
+  background: #fff1f1;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 10px 0;
+  font-size: 15px;
+}
+.taste-feedback {
+  border: 1px solid #dbe2e8;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 18px 0;
+}
+.taste-feedback h3 {
+  font-size: 20px;
+}
+.taste-feedback > p {
+  font-size: 15px;
+  line-height: 1.9;
+  margin: 7px 0;
+}
+.feedback-item {
+  border-top: 1px solid #dbe2e8;
+  padding: 15px 0;
+  display: grid;
+  gap: 8px;
+}
+.feedback-item b {
+  font-size: 17px;
+}
+.feedback-item small {
+  display: block;
+  font-size: 14px;
+  line-height: 1.9;
+}
+.taste-admin-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+.taste-admin-summary article {
+  background: #fff;
+  padding: 20px;
+  border: 1px solid #dbe2e8;
+  border-radius: 10px;
+  display: grid;
+  gap: 8px;
+}
+.taste-admin-summary b {
+  font-size: 21px;
+  font-weight: 500;
+}
+.taste-admin-summary span {
+  font-size: 14px;
+  color: #5a6874;
+  line-height: 1.8;
+}
+.knowledge-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0 32px;
+}
+.knowledge-grid article {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #dbe2e8;
+  border-radius: 8px;
+  background: #fff;
+}
+.knowledge-grid b {
+  font-size: 16px;
+  font-weight: 500;
+}
+.knowledge-grid small {
+  display: block;
+  font-size: 13px;
+  color: #5a6874;
+  margin-top: 6px;
+}
+.taste-management h3 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+.taste-management > p {
+  font-size: 16px;
+  line-height: 1.9;
+}
+.decision-record {
+  margin: 14px 0;
+  border: 1px solid #dbe2e8;
+  border-radius: 10px;
+  padding: 20px;
+  background: #fff;
+}
+.decision-record summary {
+  cursor: pointer;
+  font-size: 16px;
+}
+.decision-record p {
+  font-size: 15px;
+  line-height: 1.9;
+  margin-top: 10px;
+}
+.decision-record small {
+  font-size: 13px;
+  color: #5a6874;
+}
+.decision-row {
+  padding: 15px 0;
+  border-bottom: 1px solid #e6ebef;
+}
+.decision-row b {
+  font-size: 16px;
+  font-weight: 500;
+}
+@media (max-width: 900px) {
+  .occasion-card {
+    padding: 18px 12px;
+    gap: 10px;
+  }
+  .occasion-card > svg:last-child {
+    display: none;
+  }
+  .knowledge-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .taste-candidates {
+    grid-template-columns: 1fr;
+  }
+  .taste-candidates article {
+    display: flex;
+  }
+  .taste-candidates article > img {
+    width: 28%;
+    height: auto;
+    max-height: 240px;
+  }
+}
+@media (max-width: 600px) {
+  .taste-welcome {
+    padding-top: 22px;
+  }
+  .taste-intro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .occasion-options {
+    gap: 8px;
+  }
+  .occasion-card {
+    position: relative;
+    padding: 18px 8px;
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  .occasion-card > [data-slot='radio-group-item'] {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+  .occasion-card b {
+    font-size: 18px;
+  }
+  .occasion-card small {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .taste-save-invite,
+  .returning-guest {
+    flex-wrap: wrap;
+  }
+  .taste-save-invite > div {
+    flex-basis: 80%;
+  }
+  .taste-admin-summary,
+  .knowledge-grid {
+    grid-template-columns: 1fr;
+  }
+  .taste-candidates article > img {
+    width: 24%;
+  }
+  .taste-candidates article > div {
+    min-width: 0;
+    padding: 14px;
+  }
+  .taste-feedback {
+    padding: 14px;
+  }
+}
