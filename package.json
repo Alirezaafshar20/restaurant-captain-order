@@ -11,7 +11,7 @@
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
     "format": "oxfmt",
-    "test": "node --test tests/domain.test.mjs tests/taste.test.mjs tests/taste-routes.test.mjs",
+    "test": "node --test tests/domain.test.mjs tests/taste.test.mjs tests/taste-routes.test.mjs tests/guide-presentation.test.mjs",
     "test:integration": "node tests/integration.mjs",
     "db:local": "node scripts/init-local-db.mjs",
     "db:generate": "drizzle-kit generate"

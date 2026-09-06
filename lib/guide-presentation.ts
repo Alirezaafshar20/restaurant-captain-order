@@ -1,0 +1,73 @@
+import { menu } from './menu.ts';
+
+export const guideQuestions = [
+  'none',
+  'preference',
+  'budget',
+  'coffee_style',
+  'cafe_choice',
+  'occasion',
+] as const;
+export type GuideQuestion = (typeof guideQuestions)[number];
+export type GuidePresentation = {
+  lead?: string;
+  followUp?: { text: string; choices: string[] };
+};
+
+export function guidePresentation(
+  ids: string[],
+  question: GuideQuestion = 'none',
+  intent = 'recommend',
+  cafe = false,
+): GuidePresentation {
+  const selected = ids
+    .map((id) => menu.find((m) => m.id === id))
+    .filter((m) => m !== undefined);
+  const allDrinks =
+    selected.length > 0 && selected.every((m) => m.category === 'نوشیدنی گرم');
+  let lead = selected.length
+    ? intent === 'compare'
+      ? 'بیایید تفاوتشان را از روی منوی مویا ببینیم؛ توضیح و قیمت هر انتخاب را کنار عکسش گذاشته‌ام.'
+      : 'این انتخاب‌ها به چیزی که گفتید نزدیک‌اند. توضیح هر کدام را ببینید؛ می‌توانیم با هم دقیق‌تر انتخاب کنیم.'
+    : 'با هم انتخاب کنیم.';
+  if (ids.includes('latte') && ids.includes('cappuccino')) {
+    lead =
+      'اگر شیر بیشتری در قهوه‌تان می‌پسندید، پیشنهاد من لاته است؛ در منوی مویا با ۲۲۰ میلی‌لیتر شیر آمده و کاپوچینو با ۱۸۰ میلی‌لیتر. مشخصات هر دو را اینجا می‌بینید.';
+  }
+  // A coffee conversation must never fall back to a meat-preference question.
+  const resolved =
+    question === 'preference' && (allDrinks || cafe) ? 'cafe_choice' : question;
+  const questions: Record<
+    Exclude<GuideQuestion, 'none'>,
+    { text: string; choices: string[] }
+  > = {
+    coffee_style: {
+      text: 'قهوه با شیر می‌پسندید یا اسپرسو را بررسی کنیم؟',
+      choices: ['قهوه با شیر می‌پسندم', 'اسپرسو را نشان بده'],
+    },
+    cafe_choice: {
+      text: 'امروز بیشتر میل به قهوه دارید، چای یا دسر؟',
+      choices: ['قهوه می‌خواهم', 'چای می‌خواهم', 'دسرها را ببینیم'],
+    },
+    occasion: {
+      text: 'برای غذا همراهتان باشم یا انتخابی از منوی کافه؟',
+      choices: ['منوی کافه را می‌خواهم', 'برای غذا آمده‌ام'],
+    },
+    preference: {
+      text: 'برای انتخاب غذا، مرغ، گوشت یا غذای دریایی را بیشتر می‌پسندید؟',
+      choices: [
+        'مرغ را ترجیح می‌دهم',
+        'گوشت را ترجیح می‌دهم',
+        'غذای دریایی می‌خواهم',
+      ],
+    },
+    budget: {
+      text: 'چه محدودهٔ قیمتی برای هر انتخاب در نظر دارید؟',
+      choices: [],
+    },
+  };
+  return {
+    lead,
+    ...(resolved !== 'none' ? { followUp: questions[resolved] } : {}),
+  };
+}

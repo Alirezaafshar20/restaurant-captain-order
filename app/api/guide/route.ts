@@ -12,7 +12,7 @@ function config() {
   };
   return {
     apiKey: e.OPENAI_API_KEY || '',
-    model: e.OPENAI_MODEL || 'gpt-4.1-mini',
+    model: e.OPENAI_MODEL || 'gpt-6-astra',
   };
 }
 export async function GET() {

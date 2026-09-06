@@ -1,4 +1,9 @@
 export const imageFiles: Record<string, string> = {
+  espresso: '0293eaaca14944bea52f278118666b0f.jpeg',
+  latte: '48da24ed05d740b8bd8f105e7c76916d.jpeg',
+  cappuccino: 'b2410ef01d4e48aea8472bc03167bca5.jpeg',
+  'iranian-tea': '226223ddf68449c6acc33f8b8cb0209c.jpeg',
+  'moroccan-tea': '51b1040bae6848d398b62fc49acb165f.jpeg',
   marinara: '899f7330ab4f484da53e2449806c676d.jpeg',
   carbonara: '83dff90f69094239b7159162a00633df.jpeg',
   'vegetable-pizza': '17edf85f3aae4998a68207faa6d3d4e1.jpeg',

@@ -37,6 +37,7 @@ import {
 } from '@/components/taste-experience';
 import { TasteManagement } from '@/components/taste-management';
 import { emptyContext, inOccasion, type TasteContext } from '@/lib/taste';
+import type { GuidePresentation } from '@/lib/guide-presentation';
 import {
   Dialog,
   DialogContent,
@@ -2046,6 +2047,15 @@ export default function Experience({
         open={assistantOpen}
         setOpen={setAssistantOpen}
         unavailable={state.unavailable}
+        draft={draft}
+        busy={busy}
+        quickAdd={(m) => {
+          if (!state.unavailable.includes(m.id)) add(m);
+        }}
+        openCart={() => {
+          setAssistantOpen(false);
+          setCartOpen(true);
+        }}
         add={(m) => {
           openDetail(m);
           setAssistantOpen(false);
@@ -2075,7 +2085,12 @@ function Empty({
     </div>
   );
 }
-type Message = { role: 'user' | 'assistant'; text: string; items?: string[] };
+type Message = GuidePresentation & {
+  role: 'user' | 'assistant';
+  text: string;
+  items?: string[];
+  mode?: 'ai' | 'menu' | 'fallback';
+};
 function MenuAssistant({
   tasteContext,
   open,
@@ -2083,6 +2098,10 @@ function MenuAssistant({
   unavailable,
   add,
   requestCaptain,
+  draft,
+  busy,
+  quickAdd,
+  openCart,
 }: {
   tasteContext: TasteContext;
   open: boolean;
@@ -2090,6 +2109,10 @@ function MenuAssistant({
   unavailable: string[];
   add: (m: MenuItem) => void;
   requestCaptain: () => void;
+  draft: Draft[];
+  busy: boolean;
+  quickAdd: (m: MenuItem) => void;
+  openCart: () => void;
 }) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -2105,7 +2128,8 @@ function MenuAssistant({
   const [voiceError, setVoiceError] = useState('');
   const [thinking, setThinking] = useState(false);
   const [configured, setConfigured] = useState(false);
-  const end = useRef<HTMLDivElement>(null);
+  const latest = useRef<HTMLDivElement>(null);
+  const sending = useRef(false);
   useEffect(() => {
     if (open)
       void fetch('/api/guide')
@@ -2116,10 +2140,16 @@ function MenuAssistant({
         .catch(() => {});
   }, [open]);
   useEffect(() => {
-    end.current?.scrollIntoView({ behavior: 'smooth' });
+    latest.current?.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'instant'
+        : 'smooth',
+      block: 'start',
+    });
   }, [messages, thinking]);
   async function send(text: string) {
-    if (!text.trim() || thinking) return;
+    if (!text.trim() || sending.current) return;
+    sending.current = true;
     setInput('');
     setMessages((m) => [...m, { role: 'user', text }]);
     setThinking(true);
@@ -2135,12 +2165,9 @@ function MenuAssistant({
             .map((m) => ({ role: m.role, text: m.text.slice(0, 1500) })),
         }),
       });
-      const data = (await r.json()) as { text: string; items: string[] };
+      const data = (await r.json()) as Omit<Message, 'role'>;
       if (!r.ok) throw new Error();
-      setMessages((m) => [
-        ...m,
-        { role: 'assistant', text: data.text, items: data.items },
-      ]);
+      setMessages((m) => [...m, { ...data, role: 'assistant' }]);
     } catch {
       setMessages((m) => [
         ...m,
@@ -2151,6 +2178,7 @@ function MenuAssistant({
       ]);
     } finally {
       setThinking(false);
+      sending.current = false;
     }
   }
   function voice() {
@@ -2213,40 +2241,163 @@ function MenuAssistant({
             </DialogDescription>
           </div>
         </div>
-        <div className="chat-messages">
+        <div
+          className="chat-messages"
+          role="log"
+          aria-label="گفت‌وگو با راهنمای مویا"
+          aria-live="polite"
+          aria-relevant="additions"
+          aria-busy={thinking}
+        >
           {messages.map((m, i) => (
-            <div key={i} className={'chat-message ' + m.role}>
-              <p>{m.text}</p>
-              {m.items?.map((id) => {
-                const item = menu.find((m) => m.id === id);
-                return item ? (
-                  <button
-                    className="chat-recommendation"
-                    key={id}
-                    disabled={unavailable.includes(id)}
-                    onClick={() => add(item)}
-                  >
-                    <span>
-                      <b>{item.name}</b>
-                      <small>{money(item.price)} تومان</small>
-                    </span>
-                    <ArrowUpLeft size={19} />
-                  </button>
-                ) : null;
-              })}
+            <div
+              ref={i === messages.length - 1 ? latest : undefined}
+              key={i}
+              className={'chat-message ' + m.role}
+            >
+              {m.role === 'assistant' && (
+                <span className="chat-speaker">
+                  <Sparkles size={14} /> راهنمای مویا
+                </span>
+              )}
+              <p>{m.lead || m.text}</p>
+              {m.mode === 'fallback' && (
+                <small className="chat-mode-note">
+                  پاسخ فعلی از راهنمای داخلی منوست.
+                </small>
+              )}
+              <div className="chat-card-grid">
+                {m.items?.map((id) => {
+                  const item = menu.find((m) => m.id === id);
+                  if (!item) return null;
+                  const count = draft
+                    .filter((d) => d.menuId === id)
+                    .reduce((n, d) => n + d.quantity, 0);
+                  const blocked = unavailable.includes(id);
+                  return (
+                    <article className="chat-menu-card" key={id}>
+                      <button
+                        type="button"
+                        className="chat-card-image"
+                        aria-label={`مشاهدهٔ ${item.name}`}
+                        onClick={() => add(item)}
+                      >
+                        <Plate item={item} />
+                        {item.image ? (
+                          <span className="chat-photo-label">
+                            عکس منوی مویا
+                          </span>
+                        ) : (
+                          <span className="chat-photo-label">
+                            عکس این آیتم هنوز ثبت نشده
+                          </span>
+                        )}
+                      </button>
+                      <div className="chat-card-body">
+                        <span className="chat-category">{item.category}</span>
+                        <h3>{item.name}</h3>
+                        <p>{item.description}</p>
+                        <strong className="chat-card-price">
+                          {money(item.price)} <small>تومان</small>
+                        </strong>
+                        <div className="chat-card-actions">
+                          <button
+                            type="button"
+                            className="chat-card-add"
+                            disabled={blocked || busy || count >= 20}
+                            onClick={() => quickAdd(item)}
+                            aria-label={`افزودن ${item.name} به انتخاب‌ها`}
+                          >
+                            {count > 0 ? (
+                              <Check size={16} />
+                            ) : (
+                              <Plus size={16} />
+                            )}
+                            {blocked
+                              ? 'فعلاً ناموجود'
+                              : count >= 20
+                                ? 'سقف تعداد انتخاب'
+                                : count > 0
+                                  ? `${label(count)} در انتخاب‌ها · یکی دیگر`
+                                  : 'به انتخابم اضافه کن'}
+                          </button>
+                          <button
+                            type="button"
+                            className="chat-card-detail"
+                            onClick={() => add(item)}
+                          >
+                            جزئیات و توضیح سفارش <ArrowUpLeft size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+              {m.followUp && (
+                <div className="chat-follow-up">
+                  <p>{m.followUp.text}</p>
+                  <div>
+                    {m.followUp.choices.map((choice) => (
+                      <button
+                        type="button"
+                        key={choice}
+                        disabled={thinking || i !== messages.length - 1}
+                        onClick={() => send(choice)}
+                      >
+                        {choice}
+                        <ArrowLeft size={14} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {i === messages.length - 1 && (m.items?.length || 0) > 1 && (
+                <button
+                  className="chat-compare"
+                  type="button"
+                  disabled={thinking}
+                  onClick={() =>
+                    send(
+                      'این گزینه‌ها را از نظر توضیحات منو و قیمت با هم مقایسه کن',
+                    )
+                  }
+                >
+                  <SlidersHorizontal size={15} /> کمکم کن بین این‌ها انتخاب کنم
+                </button>
+              )}
             </div>
           ))}
-          {thinking && <p className="thinking">در حال بررسی منو…</p>}
-          <div ref={end} />
+          {thinking && (
+            <output className="thinking">
+              <span className="thinking-dots" aria-hidden="true">
+                •••
+              </span>{' '}
+              دارم انتخاب‌های منو را برایتان بررسی می‌کنم…
+            </output>
+          )}
         </div>
+        {draft.length > 0 && (
+          <button type="button" className="chat-basket" onClick={openCart}>
+            <ShoppingBag size={18} />
+            <span>
+              {label(draft.reduce((n, d) => n + d.quantity, 0))} انتخاب شما{' '}
+              <small>برای ثبت نهایی، بررسی کنید</small>
+            </span>
+            <ArrowLeft size={19} />
+          </button>
+        )}
         <div className="quick-prompts">
-          {[
-            ...(tasteContext.occasion === 'cafe'
-              ? ['قهوه پیشنهاد بده', 'دسر پیشنهاد بده']
-              : ['غذای دریایی می‌خواهم', 'مرغ پیشنهاد بده']),
-            'تا یک میلیون تومان',
-            'حساسیت غذایی دارم',
-          ].map((t) => (
+          {(messages.length === 1
+            ? [
+                ...(tasteContext.occasion === 'cafe'
+                  ? ['قهوه پیشنهاد بده', 'دسر پیشنهاد بده']
+                  : ['غذای دریایی می‌خواهم', 'مرغ پیشنهاد بده']),
+                'تا یک میلیون تومان',
+                'حساسیت غذایی دارم',
+              ]
+            : ['انتخاب دیگری می‌خواهم', 'منوی کافه را می‌خواهم']
+          ).map((t) => (
             <button disabled={thinking} key={t} onClick={() => send(t)}>
               {t}
             </button>
@@ -2270,6 +2421,7 @@ function MenuAssistant({
           </button>
           <input
             maxLength={500}
+            aria-label="پیام شما به راهنمای مویا"
             placeholder={listening ? 'گوش می‌دهم…' : 'از سلیقه‌تان بگویید…'}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -2286,7 +2438,7 @@ function MenuAssistant({
         <div className="assistant-footer">
           <span>
             {configured
-              ? 'هوش مصنوعی متصل · پاسخ‌ها بر اساس منوی مویا'
+              ? 'راهنمای هوشمند · بر اساس منوی مویا'
               : 'پاسخ‌های مبتنی بر منو؛ اتصال مدل زبانی هنوز فعال نیست.'}
           </span>
           <button onClick={requestCaptain}>
