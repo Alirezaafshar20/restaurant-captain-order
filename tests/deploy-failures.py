@@ -14,6 +14,7 @@ import json,os,sys,fcntl
 from pathlib import Path
 cmd=Path(sys.argv[0]).name; args=sys.argv[1:]
 root=Path(os.environ['MOYA_TEST_ROOT']); scenario=os.environ['MOYA_TEST_SCENARIO']
+if cmd=='curl' and '--header' in args: sys.stdin.read()
 lock=(root/'mock.lock').open('w')
 fcntl.flock(lock,fcntl.LOCK_EX)
 state_path=root/'mock-state.json'; state=json.loads(state_path.read_text())
