@@ -4,6 +4,64 @@ import { readFileSync, existsSync } from 'node:fs';
 import { menu, categories, cafeCategories } from '../lib/menu.ts';
 import { inOccasion } from '../lib/taste.ts';
 import { guide } from '../lib/guide.ts';
+import {
+  menuSections,
+  sectionItems,
+  searchMenu,
+} from '../lib/menu-navigation.ts';
+
+void test('official menu hierarchy covers every food exactly once and keeps source category icons', () => {
+  assert.deepEqual(
+    menuSections.map((section) => section.id),
+    ['food', 'hot', 'cold', 'dessert', 'breakfast'],
+  );
+  const ids = [];
+  for (const section of menuSections) {
+    assert.ok(section.groups.length);
+    assert.ok(
+      existsSync(new URL('../public' + section.image, import.meta.url)),
+    );
+    for (const group of section.groups) {
+      assert.ok(
+        existsSync(new URL('../public' + group.image, import.meta.url)),
+      );
+      for (const id of group.itemIds) {
+        const item = menu.find((item) => item.id === id);
+        assert.ok(item, 'Category cannot reference missing item: ' + id);
+        assert.equal(item.sourceCategoryId, group.id);
+        ids.push(id);
+      }
+    }
+    assert.equal(
+      sectionItems(section).length,
+      section.groups.reduce((sum, group) => sum + group.itemIds.length, 0),
+    );
+  }
+  assert.equal(ids.length, new Set(ids).size);
+  assert.deepEqual(new Set(ids), new Set(menu.map((item) => item.id)));
+  assert.equal(
+    sectionItems(menuSections.find((section) => section.id === 'dessert'))
+      .length,
+    11,
+  );
+  assert.equal(
+    sectionItems(menuSections.find((section) => section.id === 'breakfast'))
+      .length,
+    19,
+  );
+});
+
+void test('global menu search normalizes Persian characters and includes items across sections', () => {
+  assert.deepEqual(searchMenu(''), []);
+  assert.deepEqual(
+    searchMenu('کيک').map((item) => item.id),
+    searchMenu('کیک').map((item) => item.id),
+  );
+  assert.ok(searchMenu('لاته').some((item) => item.id === 'latte'));
+  assert.ok(searchMenu('کیک').some((item) => item.category === 'دسر'));
+  assert.ok(searchMenu('صبحانه').some((item) => item.category === 'صبحانه'));
+  assert.deepEqual(searchMenu('عبارتی که در منو وجود ندارد'), []);
+});
 
 void test('complete food and beverage snapshot preserves existing order references and all published photos', () => {
   const legacy = JSON.parse(

@@ -91,6 +91,7 @@ const items = [
       category,
       sourceCategory: c.title,
       sourceSection: c.sectionTitle,
+      sourceCategoryId: c.businessId,
       price,
       description:
         (f.alias.startsWith('مویا واین گلس')
@@ -112,9 +113,79 @@ items.sort(
     categoryOrder.indexOf(a.category) - categoryOrder.indexOf(b.category) ||
     a.priority - b.priority,
 );
-const queue = [...new Set(items.map((m) => m.image).filter(Boolean))].filter(
-  (path) => !existsSync('public' + path),
-);
+const sectionDefinitions = [
+  { id: 'food', prefix: 'غذا', title: 'غذاها', en: 'FOOD', cover: 'غذای اصلی' },
+  {
+    id: 'hot',
+    prefix: 'بار گرم',
+    title: 'بار گرم',
+    en: 'HOT BAR',
+    cover: 'Europe',
+  },
+  {
+    id: 'cold',
+    prefix: 'بار سرد',
+    title: 'بار سرد',
+    en: 'COLD BAR',
+    cover: 'Europe',
+  },
+  { id: 'dessert', prefix: 'دسر', title: 'دسر', en: 'DESSERT', cover: 'کیک' },
+  {
+    id: 'breakfast',
+    prefix: 'صبحانه',
+    title: 'صبحانه',
+    en: 'BREAKFAST',
+    cover: 'کلاسیک‌های قاره‌ای Continental Classics',
+  },
+];
+const translations = {
+  africa: 'آفریقا',
+  europe: 'اروپا',
+  america: 'آمریکا',
+  japan: 'ژاپن',
+  'middle east': 'خاورمیانه',
+  'moya signatures': 'صبحانه‌های ویژهٔ مویا',
+  'healthy & fit': 'سبک و سالم',
+  'asian morning vibes': 'صبحانه‌های آسیایی',
+  'american comforts': 'صبحانه‌های آمریکایی',
+  'کلاسیک‌های قاره‌ای continental classics': 'کلاسیک‌های قاره‌ای',
+};
+const sections = sectionDefinitions.map(({ prefix, cover, ...section }) => {
+  const groups = raw.categories
+    .filter((c) => c.isActive && c.sectionTitle.startsWith(prefix))
+    .sort((a, b) => a.priority - b.priority)
+    .map((c) => {
+      const ids = items
+        .filter((m) => m.sourceCategoryId === c.businessId)
+        .map((m) => m.id);
+      if (!/^[a-f0-9]+\.(jpg|jpeg|png|webp)$/i.test(c.headerImageUrl))
+        throw new Error('Invalid category image');
+      return {
+        id: c.businessId,
+        title:
+          translations[c.title.toLowerCase()] ||
+          foodCategories[c.title] ||
+          c.title,
+        sourceTitle: c.title,
+        image: '/menu/' + c.headerImageUrl,
+        itemIds: ids,
+      };
+    })
+    .filter((c) => c.itemIds.length);
+  return {
+    ...section,
+    image: (groups.find((c) => c.sourceTitle === cover) || groups[0]).image,
+    groups,
+  };
+});
+const queue = [
+  ...new Set(
+    [
+      ...items.map((m) => m.image),
+      ...sections.flatMap((s) => s.groups.map((c) => c.image)),
+    ].filter(Boolean),
+  ),
+].filter((path) => !existsSync('public' + path));
 let completed = 0;
 const failed = [];
 mkdirSync('public/menu', { recursive: true });
@@ -151,6 +222,10 @@ const snapshot = { source, importedAt: new Date().toISOString(), items };
 writeFileSync(
   'data/menu-catalog.json',
   JSON.stringify(snapshot, null, 2) + '\n',
+);
+writeFileSync(
+  'data/menu-navigation.json',
+  JSON.stringify({ source, sections }, null, 2) + '\n',
 );
 console.log(
   JSON.stringify({

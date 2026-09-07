@@ -13,7 +13,6 @@ import {
   Leaf,
   Minus,
   Plus,
-  Search,
   ShoppingBag,
   Sparkles,
   Utensils,
@@ -27,6 +26,7 @@ import {
   CheckCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { RestaurantMenu } from '@/components/restaurant-menu';
 import { useMenuTools } from '@/components/use-menu-tools';
 import { VisitArchive } from '@/components/visit-archive';
 import {
@@ -37,7 +37,7 @@ import {
 import { TasteManagement } from '@/components/taste-management';
 import { VoiceCaptain } from '@/components/voice-captain';
 import type { VoiceAnswer } from '@/lib/voice-connection';
-import { emptyContext, inOccasion, type TasteContext } from '@/lib/taste';
+import { emptyContext, type TasteContext } from '@/lib/taste';
 import type { GuidePresentation } from '@/lib/guide-presentation';
 import {
   Dialog,
@@ -45,10 +45,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   menu,
-  categories,
   money,
   label,
   menuSource,
@@ -131,8 +130,9 @@ export default function Experience({
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
-  const [category, setCategory] = useState('همه');
-  const [search, setSearch] = useState('');
+  const [menuSection, setMenuSection] = useState<string | null>(null);
+  const [menuReset, setMenuReset] = useState(0);
+  const [tasteOpen, setTasteOpen] = useState(false);
   const [detail, setDetail] = useState<MenuItem | null>(null);
   const [itemNote, setItemNote] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -190,7 +190,7 @@ export default function Experience({
     const key = String(table) + ':' + (visit?.id || 'none');
     if (tasteVisit.current && tasteVisit.current !== key) {
       resetTaste(emptyContext());
-      setCategory('همه');
+      setMenuSection(null);
     }
     tasteVisit.current = key;
   }, [table, visit?.id, resetTaste]);
@@ -280,15 +280,6 @@ export default function Experience({
       s + l.quantity * (menu.find((m) => m.id === l.menuId)?.price || 0),
     0,
   );
-  const filtered = menu.filter(
-    (m) =>
-      (role !== 'guest' || inOccasion(m.category, taste.context.occasion)) &&
-      (category === 'همه' || m.category === category) &&
-      (!search ||
-        `${m.name} ${m.description} ${m.en}`
-          .toLowerCase()
-          .includes(search.toLowerCase())),
-  );
   const switchTable = (n: number) => {
     if (busy) return;
     if (n !== table) {
@@ -340,9 +331,16 @@ export default function Experience({
               </span>
               <span className="desktop-only subtle">به مویا خوش آمدید</span>
             </div>
-            <a className="wordmark" href="/" aria-label="مویا">
+            <button
+              className="wordmark"
+              onClick={() => {
+                setMenuSection(null);
+                setMenuReset((value) => value + 1);
+              }}
+              aria-label="بخش‌های منوی مویا"
+            >
               MOYA<span>CUISINE & CULTURE</span>
-            </a>
+            </button>
             <div className="header-side end">
               <button className="text-button" onClick={() => openService()}>
                 <Bell size={17} />
@@ -359,306 +357,74 @@ export default function Experience({
             </div>
           </header>
           <main className="guest-main">
-            <TasteWelcome
-              model={taste}
-              unavailable={state.unavailable}
-              cartIds={draft.map((d) => d.menuId)}
-              onCaptain={() => openService()}
-              onItem={(id) => openDetail(menu.find((m) => m.id === id)!)}
-              onOccasion={() => {
-                setCategory('همه');
-                setSearch('');
+            <RestaurantMenu
+              key={menuReset}
+              sectionId={menuSection}
+              onSection={(id) => {
+                setMenuSection(id);
+                if (id && id !== 'hookah')
+                  taste.setContext({
+                    ...taste.context,
+                    occasion: ['food', 'breakfast'].includes(id)
+                      ? 'dining'
+                      : 'cafe',
+                  });
               }}
+              onItem={openDetail}
+              onAssistant={() => setAssistantOpen(true)}
+              onTaste={() => setTasteOpen(true)}
+              unavailable={state.unavailable}
+              quantities={Object.fromEntries(
+                menu.map((item) => [
+                  item.id,
+                  draft
+                    .filter((line) => line.menuId === item.id)
+                    .reduce((sum, line) => sum + line.quantity, 0),
+                ]),
+              )}
+              renderPhoto={(item) => <Plate item={item} />}
             />
-            <section className="welcome taste-secondary-welcome">
-              <div className="welcome-copy">
-                <div className="eyebrow">
-                  <span />
-                  THE MOYA EXPERIENCE
-                </div>
-                <h1>
-                  انتخاب شما،
-                  <br />
-                  <em>آغاز یک تجربه.</em>
-                </h1>
-                <p>
-                  طعم‌های آشنا، روایت‌های تازه.
-                  <br />
-                  منو را کشف کنید؛ ما برای همراهی شما اینجاییم.
-                </p>
-                <button
-                  className="welcome-link"
-                  onClick={() => setAssistantOpen(true)}
-                >
-                  <Sparkles size={17} /> گفت‌وگو دربارهٔ منو{' '}
-                  <ArrowUpLeft size={17} />
-                </button>
-              </div>
-              <div className="feature-dish">
-                <div className="feature-visual">
-                  <img
-                    className="hero-food-photo"
-                    src={menu[0].image}
-                    alt="ریب آی از منوی رسمی مویا"
-                    fetchPriority="high"
-                  />
-                  <span className="feature-caption">
-                    A MOMENT, WELL SAVOURED.
-                  </span>
-                </div>
-                <div className="feature-label">
-                  <span>از منوی مویا</span>
-                  <h2>ریب آی سووید</h2>
-                  <p>گلیز گوساله · قارچ · سس تام</p>
-                  <button
-                    aria-label="مشاهده ریب آی"
-                    onClick={() => openDetail(menu[0])}
-                  >
-                    <ArrowUpLeft size={22} />
-                  </button>
-                </div>
-              </div>
-            </section>
-            <div className="hospitality-strip">
-              <div>
-                <Sparkles size={20} />
-                <p>
-                  <b>انتخابی به سلیقهٔ شما</b>
-                  <span>راهنمای منو، بدون عجله</span>
-                </p>
-              </div>
-              <div>
-                <Utensils size={20} />
-                <p>
-                  <b>جزئیات هر طعم</b>
-                  <span>مواد اولیه از منوی مویا</span>
-                </p>
-              </div>
-              <div>
-                <Bell size={20} />
-                <p>
-                  <b>همیشه با همراهی انسان</b>
-                  <span>کاپیتان در کنار شماست</span>
-                </p>
-              </div>
-            </div>
-            <section className="menu-section" id="menu">
-              <div className="section-heading">
-                <div>
-                  <span className="eyebrow">CURATED WITH CARE</span>
-                  <h2>
-                    منوی مویا <small>{label(menu.length)} انتخاب</small>
-                  </h2>
-                </div>
-                <label className="search-field">
-                  <Search size={18} />
-                  <input
-                    value={search}
-                    onChange={(e) => {
-                      setSearch(e.target.value);
-                      if (e.target.value) setCategory('همه');
-                    }}
-                    placeholder="جست‌وجوی غذا یا مواد اولیه"
-                    aria-label="جست‌وجوی منو"
-                  />
-                  {search && (
-                    <button
-                      onClick={() => setSearch('')}
-                      aria-label="پاک کردن جست‌وجو"
-                    >
-                      <X size={14} />
-                    </button>
-                  )}
-                </label>
-              </div>
-              <div className="menu-scope" aria-label="بخش‌های منو">
-                {(
-                  [
-                    ['both', 'تمام منو'],
-                    ['cafe', 'کافه و دسر'],
-                    ['dining', 'غذا و صبحانه'],
-                  ] as const
-                ).map(([scope, title]) => (
-                  <button
-                    type="button"
-                    key={scope}
-                    aria-pressed={(taste.context.occasion || 'both') === scope}
-                    onClick={() => {
-                      taste.setContext({ ...taste.context, occasion: scope });
-                      setCategory('همه');
-                      setSearch('');
-                    }}
-                  >
-                    {title}{' '}
-                    <span>
-                      {label(
-                        menu.filter((m) => inOccasion(m.category, scope))
-                          .length,
-                      )}
-                    </span>
-                  </button>
-                ))}
-              </div>
-              <Tabs
-                value={category}
-                onValueChange={(v) => setCategory(String(v))}
-                className="menu-tabs"
-              >
-                <TabsList variant="line">
-                  {categories
-                    .filter(
-                      (c) =>
-                        c === 'همه' || inOccasion(c, taste.context.occasion),
-                    )
-                    .map((c) => (
-                      <TabsTrigger key={c} value={c}>
-                        {c === 'همه' ? 'همهٔ این بخش' : c}{' '}
-                        <span className="category-count">
-                          {label(
-                            menu.filter(
-                              (m) =>
-                                inOccasion(
-                                  m.category,
-                                  taste.context.occasion,
-                                ) &&
-                                (c === 'همه' || m.category === c),
-                            ).length,
-                          )}
-                        </span>
-                      </TabsTrigger>
-                    ))}
-                </TabsList>
-                <TabsContent value={category}>
-                  <div className="menu-heading">
-                    <span>
-                      {category === 'همه' ? 'همهٔ انتخاب‌های این بخش' : category}{' '}
-                      <small>
-                        {' '}
-                        / نمایش {label(filtered.length)} از {label(menu.length)}{' '}
-                        آیتم منو
-                      </small>
-                    </span>
-                    {category !== 'همه' ||
-                    search ||
-                    (taste.context.occasion &&
-                      taste.context.occasion !== 'both') ? (
-                      <button
-                        type="button"
-                        className="menu-reset"
-                        onClick={() => {
-                          taste.setContext({
-                            ...taste.context,
-                            occasion: 'both',
-                          });
-                          setCategory('همه');
-                          setSearch('');
-                        }}
-                      >
-                        نمایش تمام منو <ArrowLeft size={14} />
-                      </button>
-                    ) : (
-                      <span>قیمت‌ها به تومان</span>
-                    )}
-                  </div>
-                  {filtered.length === 0 ? (
-                    <div className="empty-state">
-                      <Search />
-                      <h3>طعمی با این نام پیدا نشد.</h3>
-                      <p>نام غذا یا یکی از مواد اولیه را جست‌وجو کنید.</p>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setSearch('');
-                          setCategory('همه');
-                          taste.setContext({
-                            ...taste.context,
-                            occasion: 'both',
-                          });
-                        }}
-                      >
-                        نمایش همهٔ منو
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="food-grid">
-                      {filtered.map((m) => (
-                        <article
-                          className={
-                            'food-card ' +
-                            (state.unavailable.includes(m.id)
-                              ? 'unavailable'
-                              : '')
-                          }
-                          key={m.id}
-                        >
-                          <button
-                            className="card-visual"
-                            onClick={() => openDetail(m)}
-                            aria-label={`جزئیات ${m.name}`}
-                          >
-                            <Plate item={m} />
-                            {state.unavailable.includes(m.id) && (
-                              <span className="sold-out">امروز ناموجود</span>
-                            )}
-                          </button>
-                          <div className="card-copy">
-                            <span className="dish-en">{m.en}</span>
-                            <button
-                              className="dish-title"
-                              onClick={() => openDetail(m)}
-                            >
-                              {m.name}
-                            </button>
-                            <p>{m.description}</p>
-                            <div className="card-bottom">
-                              <span className="price">
-                                {money(m.price)} <small>تومان</small>
-                              </span>
-                              <button
-                                className="add-button"
-                                disabled={state.unavailable.includes(m.id)}
-                                onClick={() => openDetail(m)}
-                                aria-label={`افزودن ${m.name}`}
-                              >
-                                <Plus size={19} />
-                              </button>
-                            </div>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </section>
-            <section className="companion-banner">
-              <div className="spark-emblem">
-                <Sparkles size={24} />
-              </div>
-              <div>
-                <h3>بین چند انتخاب مردد هستید؟</h3>
-                <p>از طعم دلخواهتان بگویید؛ با هم منو را مرور می‌کنیم.</p>
-              </div>
-              <Button onClick={() => setAssistantOpen(true)}>
-                گفت‌وگو با راهنمای مویا <ArrowLeft size={16} />
-              </Button>
-            </section>
-            <footer className="guest-footer">
-              <div className="wordmark">
-                MOYA<span>CUISINE & CULTURE</span>
-              </div>
-              <p>با حضور شما، مهمان‌نوازی معنا می‌گیرد.</p>
-              <div>
-                <a href={menuSource} target="_blank" rel="noreferrer">
-                  منبع: منوی رسمی مویا <ArrowUpLeft size={12} />
-                </a>
-                <span>
-                  منوی غذا و نوشیدنی مویا · موجودی روز با رستوران هماهنگ می‌شود
-                </span>
-              </div>
+            <footer className="menu-source-note">
+              <a href={menuSource} target="_blank" rel="noreferrer">
+                بر اساس منوی رسمی مویا <ArrowUpLeft size={14} />
+              </a>
             </footer>
+            <Dialog open={tasteOpen} onOpenChange={setTasteOpen}>
+              <DialogContent className="menu-taste-dialog">
+                <DialogTitle>انتخاب به سلیقهٔ شما</DialogTitle>
+                <DialogDescription>
+                  برای همین مراجعه تنظیم کنید؛ ذخیرهٔ سلیقه اختیاری است.
+                </DialogDescription>
+                <TasteWelcome
+                  model={taste}
+                  unavailable={state.unavailable}
+                  cartIds={draft.map((d) => d.menuId)}
+                  onCaptain={() => {
+                    setTasteOpen(false);
+                    openService();
+                  }}
+                  onItem={(id) => {
+                    setTasteOpen(false);
+                    openDetail(menu.find((item) => item.id === id)!);
+                  }}
+                  onOccasion={(occasion) =>
+                    setMenuSection(
+                      occasion === 'cafe'
+                        ? 'hot'
+                        : occasion === 'dining'
+                          ? 'food'
+                          : null,
+                    )
+                  }
+                />
+              </DialogContent>
+            </Dialog>
           </main>
           <div className="guest-dock">
+            <button onClick={() => openService()}>
+              <Bell size={20} />
+              <span>کاپیتان</span>
+            </button>
             <button onClick={() => setAssistantOpen(true)}>
               <Sparkles size={20} />
               <span>راهنمای من</span>

@@ -1,0 +1,351 @@
+{
+  "source": "https://moyacuisine.com/menu-home/moya/%D9%81%D8%A7%D8%B1%D8%B3%DB%8C",
+  "sections": [
+    {
+      "id": "food",
+      "title": "غذاها",
+      "en": "FOOD",
+      "image": "/menu/bc13d4b0c86545639e6d16625edb1dbd.png",
+      "groups": [
+        {
+          "id": "953a042f-5c17-4c6a-ad2a-3ef7af23b6ee",
+          "title": "سالاد",
+          "sourceTitle": "سالاد",
+          "image": "/menu/de64a08ebc7b4cdb92a3ac9250f377a0.png",
+          "itemIds": [
+            "fresca",
+            "caesar",
+            "cobb",
+            "garden",
+            "moya-ac09ce31-2d3a-4bb2-9755-ca2865e656f9"
+          ]
+        },
+        {
+          "id": "46046ed3-58c2-444f-9248-8cde4e5ef18d",
+          "title": "پیش‌غذا",
+          "sourceTitle": "پیش غذا",
+          "image": "/menu/34d5147bd0034c2ca0d1be3bb4846655.png",
+          "itemIds": [
+            "moya-8a257ff3-9d1b-4499-8ac5-232cab291b82",
+            "melanzane",
+            "potato",
+            "beef-zucchini",
+            "fritti",
+            "avocado",
+            "hummus",
+            "moya-3ee09a33-f644-430e-b7b3-24cf27a16088",
+            "soup",
+            "platter"
+          ]
+        },
+        {
+          "id": "36ce0f19-0575-4dd3-86ce-442f5b856c5b",
+          "title": "پاستا",
+          "sourceTitle": "پاستا",
+          "image": "/menu/05a325d273bc484893e34afef17811d3.png",
+          "itemIds": [
+            "ragu",
+            "lasagna",
+            "rosa",
+            "moya-9bdfe861-54e1-46fa-95e8-6107200c8f46",
+            "pesto-pasta"
+          ]
+        },
+        {
+          "id": "c72dc8bc-a13e-4ac0-8ea9-3d9a2f95965c",
+          "title": "غذای اصلی",
+          "sourceTitle": "غذای اصلی",
+          "image": "/menu/bc13d4b0c86545639e6d16625edb1dbd.png",
+          "itemIds": [
+            "cajun",
+            "ribeye",
+            "entrecote",
+            "filet",
+            "argentine",
+            "seabass",
+            "rice-meat",
+            "bbq-burger",
+            "shank",
+            "ghalieh",
+            "rib-burger",
+            "neck"
+          ]
+        },
+        {
+          "id": "ea970bff-ea78-4589-82c4-7690d35a1a0a",
+          "title": "کباب",
+          "sourceTitle": "کباب ها",
+          "image": "/menu/0acb3ffc5c5d4063a797e5f496ec4ff9.png",
+          "itemIds": [
+            "moya-caf74d8b-50bc-4c7e-8795-c4a2b5718917",
+            "lamb-chops",
+            "moya-3be2b8a9-a08a-4247-b0fa-98cbd3ca5077",
+            "adana",
+            "moya-90405a29-c19b-4928-8899-68edbf7210d4",
+            "rice",
+            "chicken-kebab"
+          ]
+        },
+        {
+          "id": "9c6a7299-30d8-47a7-8ebd-1e350f1cf2b5",
+          "title": "پیتزا",
+          "sourceTitle": "پیتزاها",
+          "image": "/menu/392b7fd0931a4dffab5f3ee3a0c4703a.png",
+          "itemIds": [
+            "marinara",
+            "carbonara",
+            "moya-554db31e-71f6-4859-9023-63f4f47a1c92",
+            "vegetable-pizza",
+            "steak-pizza",
+            "chicken-pizza",
+            "pepperoni"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hot",
+      "title": "بار گرم",
+      "en": "HOT BAR",
+      "image": "/menu/c92174231c0a4a60aaf5c7c718175798.png",
+      "groups": [
+        {
+          "id": "b147ad1e-adfe-47b6-8cf9-0312c05f6c2f",
+          "title": "آفریقا",
+          "sourceTitle": "africa",
+          "image": "/menu/e1a6d255809e4564a4d4701d89dd582e.png",
+          "itemIds": [
+            "moya-2125a4e9-056a-4e48-bccf-d44d0cad34ef",
+            "moya-696b83e2-2b54-46f1-acc8-988a7c551202",
+            "moya-2f252807-4f59-4082-a84d-b61a0b6fc4f4",
+            "moya-3ed76a3c-6d79-4f87-86e7-9927d4316106",
+            "moya-8a98a924-1f75-42b5-b2d5-4253f2817740",
+            "moya-000dbf14-3c04-433a-99aa-b4e3f2fd2eba"
+          ]
+        },
+        {
+          "id": "3b94b50c-5ae9-4955-bbdd-062c7255cde9",
+          "title": "اروپا",
+          "sourceTitle": "Europe",
+          "image": "/menu/c92174231c0a4a60aaf5c7c718175798.png",
+          "itemIds": [
+            "espresso",
+            "moya-146b6cb1-aa0f-4cdc-9661-432579d2c85d",
+            "cappuccino",
+            "latte",
+            "moya-012e98f8-3b8d-4f6d-b1c8-a234ce15bafc",
+            "moya-5f75cb50-428c-4783-b4e0-54b7e0025e70",
+            "moya-092726cc-4cc5-4cf8-87c9-6b54575fa5bf",
+            "moya-62a1918d-e21c-4520-ae3d-3a6e06724630",
+            "moya-d1b4ff62-02f2-40b5-91e2-9163a938acde"
+          ]
+        },
+        {
+          "id": "53873de6-7195-448b-a241-6be0faad40be",
+          "title": "خاورمیانه",
+          "sourceTitle": "Middle East",
+          "image": "/menu/6943703f06124c4985413a21ef4ee7a5.png",
+          "itemIds": [
+            "moya-418b7b95-806c-4109-b899-792238b5c203",
+            "moroccan-tea",
+            "iranian-tea",
+            "moya-7ecd77cf-77ba-4566-8381-0c670f2b3b63",
+            "moya-952585df-5567-4acd-ab52-80a95d94ace8",
+            "moya-bcf1de39-ba28-44e1-91de-4db1e871d723"
+          ]
+        },
+        {
+          "id": "719c2393-d8f4-4c51-bf53-d8013651b406",
+          "title": "ژاپن",
+          "sourceTitle": "japan",
+          "image": "/menu/f1bc8d31540b4c1989e3b77af6d58aba.png",
+          "itemIds": [
+            "moya-9665c54f-df0f-4aec-8612-c28bdda35b50",
+            "moya-16ca8e63-696b-4461-853b-a0323ea69b2a",
+            "moya-87faacae-1f44-4736-83ce-d9ec1fef6506",
+            "moya-81e2eb16-a618-414a-a691-5a5fc72d8d5c"
+          ]
+        },
+        {
+          "id": "5a34c274-7139-4da7-8a69-2b6f31e7f592",
+          "title": "آمریکا",
+          "sourceTitle": "America",
+          "image": "/menu/a2322ebccce1497c9c1bc69d8570ae1c.png",
+          "itemIds": [
+            "moya-989e3f8f-ae53-4411-83d4-32c5f22ae3ab",
+            "moya-6de8fe22-38f9-4d01-9223-c42c78721f62",
+            "moya-38525303-4912-4b96-8dd8-0fdba0245ebd",
+            "moya-3a8bf372-70de-4233-a2f2-d757aac7cdee"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cold",
+      "title": "بار سرد",
+      "en": "COLD BAR",
+      "image": "/menu/9ebe75d90c8c40cea21a112e812c19b7.png",
+      "groups": [
+        {
+          "id": "96113a77-020d-4f24-9bbb-b5dc9c90a316",
+          "title": "ژاپن",
+          "sourceTitle": "japan",
+          "image": "/menu/0ab9c7f7581146529bf0672348077b0e.png",
+          "itemIds": [
+            "moya-b75fb97f-b429-4af7-b9bd-95ebb3903042",
+            "moya-efe92a6c-4afa-4115-854a-4f8e3b3ea5c5",
+            "moya-b6e69293-a110-43d7-bb90-5ced1fb286a6",
+            "moya-49f06f6f-02af-4cb2-b6b8-26ee0225dca3"
+          ]
+        },
+        {
+          "id": "db2675e3-e034-4852-a716-3a736943aaad",
+          "title": "آفریقا",
+          "sourceTitle": "africa",
+          "image": "/menu/0611304ae97a44b28f1bf9982fdcc940.png",
+          "itemIds": [
+            "moya-7312184b-ab43-4925-b765-d6c6e40318b3",
+            "moya-df6b31e0-a222-4ae8-8388-33b86cf2ba61",
+            "moya-bf8e6a73-ded2-400e-9eef-2f1f6f74552c",
+            "moya-9b4cf519-5d97-42a7-b754-5f435d4b0021",
+            "moya-1fdd8644-e0ef-4214-a329-7d6c2ed6d0d7"
+          ]
+        },
+        {
+          "id": "66bacd34-e3f6-4fa4-bf02-b0952661faf1",
+          "title": "آمریکا",
+          "sourceTitle": "america",
+          "image": "/menu/36d9131392ff43f1be8a7f132a9073a8.png",
+          "itemIds": [
+            "moya-43fdd07a-62e7-4825-b643-9836c6d70b37",
+            "moya-1cf155e3-b3d3-4bc8-bae3-c60f94f6c5ba",
+            "moya-b628fcc6-acb6-4c05-9abd-bafcc8a8dd33",
+            "moya-1ddd44bb-eb45-4e81-9408-7bccf33ad26d"
+          ]
+        },
+        {
+          "id": "f8b5abd4-99f3-4fa6-ba5e-8655238e55e1",
+          "title": "اروپا",
+          "sourceTitle": "Europe",
+          "image": "/menu/9ebe75d90c8c40cea21a112e812c19b7.png",
+          "itemIds": [
+            "moya-b0a4d61c-03bc-466d-94df-2bab7358a74f",
+            "moya-38f65ae0-3e8a-4cc9-a9de-e605f6bc6c04",
+            "moya-39548317-840e-4c60-8fd0-980a0de6d488",
+            "moya-4ab67a46-4ed5-4fdf-9473-22ef8e946106",
+            "moya-22b83a1e-aafd-4cb3-a4b4-e0452f4716e1",
+            "moya-c56ddda3-1d04-4b86-b9d2-0fa3e056e38a",
+            "moya-23370ee6-f730-4b22-a043-87a44cbe9979",
+            "moya-9ea17a56-67d3-47d2-a5ef-351e6ce5c10d",
+            "moya-62ef1758-a1e5-4728-9469-b918c9d877d1",
+            "moya-b1a53f80-c0e4-41e7-8d15-b33cd976d2e5"
+          ]
+        },
+        {
+          "id": "31127722-bf39-491c-a352-1f9dbacb3a61",
+          "title": "خاورمیانه",
+          "sourceTitle": "Middle East",
+          "image": "/menu/c0fc0d6a138042fd9e62bd7f07cb98f4.png",
+          "itemIds": [
+            "moya-1e3639ad-5635-4666-986f-4c94a120a8f4",
+            "moya-5e495529-4cae-485e-891f-62ba02526b28"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dessert",
+      "title": "دسر",
+      "en": "DESSERT",
+      "image": "/menu/9a6d1ef0256649429a683eec1f90e794.png",
+      "groups": [
+        {
+          "id": "c7111b15-1db5-417e-b183-2f73275d349a",
+          "title": "کیک",
+          "sourceTitle": "کیک",
+          "image": "/menu/9a6d1ef0256649429a683eec1f90e794.png",
+          "itemIds": [
+            "pistachio",
+            "san-sebastian",
+            "moya-d2ca8efb-cc8f-4448-8c70-e11347433e18",
+            "moya-4a774ec5-ee69-498e-908a-d5dfbf95a39a",
+            "moya-31a0aeb6-eb09-45fc-89c8-4d4806adf668",
+            "moya-36cb4ff7-f461-49c8-b630-17948c39cd9f",
+            "moya-25d5c11e-d059-43bb-8aba-52dde361eff9",
+            "eclair",
+            "moya-2714bb33-93bf-43ad-875f-8692e30828de",
+            "moya-0eaad0c7-1285-4bb2-b075-a7f6b9418b7c",
+            "moya-f2c75430-637e-406b-b756-f84b1423d27c"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "breakfast",
+      "title": "صبحانه",
+      "en": "BREAKFAST",
+      "image": "/menu/cd9fcf6bcd104fa5baf916a5af3d75e3.jpg",
+      "groups": [
+        {
+          "id": "46cfd2cd-7971-4b87-b6b5-c1e7eaaf977c",
+          "title": "کلاسیک‌های قاره‌ای",
+          "sourceTitle": "کلاسیک‌های قاره‌ای Continental Classics",
+          "image": "/menu/cd9fcf6bcd104fa5baf916a5af3d75e3.jpg",
+          "itemIds": [
+            "moya-f4569264-cc19-4e73-858f-e146392de56e",
+            "moya-8c80ac88-5ada-40ae-8ef1-833af817821b",
+            "moya-1ac76ffa-8cf2-4d51-bd1f-ced01ed5f646"
+          ]
+        },
+        {
+          "id": "3aa09ad8-fda7-4f98-8182-230b7ff12108",
+          "title": "صبحانه‌های ویژهٔ مویا",
+          "sourceTitle": "MOYA Signatures",
+          "image": "/menu/cf1f06ce6e324d63b226d2bf32cec56b.jpg",
+          "itemIds": [
+            "moya-f038b6d8-73a3-4e17-82e7-b7eaa9e1f590",
+            "moya-d91da1a4-cfd3-4f8f-bae6-b4fce7625db5",
+            "moya-df108a25-a4eb-4b02-bf33-5f9a9346bb77",
+            "moya-1cf38821-d087-4a76-9276-64840f202663",
+            "moya-38ef7016-4435-42b0-aa8e-ce77484cea9e"
+          ]
+        },
+        {
+          "id": "4995dcc1-4f33-4f7b-b61b-16aecae24f7a",
+          "title": "سبک و سالم",
+          "sourceTitle": "Healthy & Fit",
+          "image": "/menu/7592eb4bf6654856ae84b63458e2537a.jpg",
+          "itemIds": [
+            "moya-cea14822-8c97-4aa5-ad12-f2cee89e7b80",
+            "moya-ebe4a744-559f-4e97-866a-95af413d438f",
+            "moya-8cea8f2f-9954-47c9-b585-0147fe007014"
+          ]
+        },
+        {
+          "id": "55a6ee90-3244-4a81-9477-8e56917c5c8f",
+          "title": "صبحانه‌های آسیایی",
+          "sourceTitle": "Asian Morning Vibes",
+          "image": "/menu/26b5ebf446ef47538e5346261ca84216.jpg",
+          "itemIds": [
+            "moya-d0efb954-3b04-433f-b7d3-f80e6dce4aab",
+            "moya-5b88c50d-e86a-4b19-80f0-53636ce7aa32",
+            "moya-29393819-9014-4901-b9fe-b63403bf06f0",
+            "moya-85e5a3b8-7303-496a-a0c3-176a29c4545d",
+            "moya-0b124b68-301c-4b41-a9d8-e007ca96664b",
+            "moya-b3174a01-45dc-4431-a411-7966ca868921"
+          ]
+        },
+        {
+          "id": "f167d330-4e48-476c-9bed-b75edb0d1056",
+          "title": "صبحانه‌های آمریکایی",
+          "sourceTitle": "American Comforts",
+          "image": "/menu/4d41b3e4ffdb46d89c8020f85a931f33.jpg",
+          "itemIds": [
+            "moya-ed7d96f9-2db5-4d8f-be1b-0f38e97831a5",
+            "moya-fee07c7c-dcf4-4f9b-9646-e9a419b6ce8a"
+          ]
+        }
+      ]
+    }
+  ]
+}
