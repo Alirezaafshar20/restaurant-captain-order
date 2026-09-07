@@ -1,4 +1,5 @@
 import { menu, isBeverage } from './menu.ts';
+import { conversational } from './captain-tone.ts';
 
 export const guideQuestions = [
   'none',
@@ -27,12 +28,12 @@ export function guidePresentation(
     selected.length > 0 && selected.every((m) => isBeverage(m.category));
   let lead = selected.length
     ? intent === 'compare'
-      ? 'بیایید تفاوتشان را از روی منوی مویا ببینیم؛ توضیح و قیمت هر انتخاب را کنار عکسش گذاشته‌ام.'
-      : 'این انتخاب‌ها به چیزی که گفتید نزدیک‌اند. توضیح هر کدام را ببینید؛ می‌توانیم با هم دقیق‌تر انتخاب کنیم.'
+      ? 'بیاین تفاوت‌هاشون رو از روی منوی مویا ببینیم. توضیح و قیمت هر کدوم رو کنار عکسش گذاشتم.'
+      : 'این گزینه‌ها به چیزی که گفتین نزدیکن. عکس و توضیحشون رو ببینین تا با هم راحت‌تر انتخاب کنیم.'
     : 'با هم انتخاب کنیم.';
   if (ids.includes('latte') && ids.includes('cappuccino')) {
     lead =
-      'اگر شیر بیشتری در قهوه‌تان می‌پسندید، پیشنهاد من لاته است؛ در منوی مویا با ۲۲۰ میلی‌لیتر شیر آمده و کاپوچینو با ۱۸۰ میلی‌لیتر. مشخصات هر دو را اینجا می‌بینید.';
+      'اگه قهوه‌تون رو با شیر بیشتری دوست دارین، لاته رو پیشنهاد می‌کنم. طبق منوی مویا، لاته ۲۲۰ میلی‌لیتر شیر داره و کاپوچینو ۱۸۰ میلی‌لیتر. عکس و مشخصات هر دو رو اینجا می‌بینین.';
   }
   // A coffee conversation must never fall back to a meat-preference question.
   const resolved =
@@ -67,7 +68,14 @@ export function guidePresentation(
     },
   };
   return {
-    lead,
-    ...(resolved !== 'none' ? { followUp: questions[resolved] } : {}),
+    lead: conversational(lead),
+    ...(resolved !== 'none'
+      ? {
+          followUp: {
+            text: conversational(questions[resolved].text),
+            choices: questions[resolved].choices,
+          },
+        }
+      : {}),
   };
 }

@@ -18,7 +18,6 @@ import {
   Sparkles,
   Utensils,
   X,
-  Mic,
   RefreshCw,
   Users,
   Receipt,
@@ -36,6 +35,8 @@ import {
   TasteFeedback,
 } from '@/components/taste-experience';
 import { TasteManagement } from '@/components/taste-management';
+import { VoiceCaptain } from '@/components/voice-captain';
+import type { VoiceAnswer } from '@/lib/voice-connection';
 import { emptyContext, inOccasion, type TasteContext } from '@/lib/taste';
 import type { GuidePresentation } from '@/lib/guide-presentation';
 import {
@@ -2186,17 +2187,20 @@ function MenuAssistant({
       role: 'assistant',
       text:
         tasteContext.occasion === 'cafe'
-          ? 'به کافهٔ مویا خوش آمدید. قهوه، چای یا دسر؟ می‌توانم گزینه‌های منو و قیمتشان را مقایسه کنم.'
-          : 'به مویا خوش آمدید. می‌توانم در انتخاب غذا یا منوی کافه کمک کنم. انتخاب امروزتان را بگویید.',
+          ? 'سلام، به مویا خوش اومدین. من دستیار هوشمند منو هستم. امروز قهوه میل دارین، چای یا یه دسر؟'
+          : 'سلام، به مویا خوش اومدین. من دستیار هوشمند منو هستم. چطور می‌تونم کمکتون کنم؟',
     },
   ]);
   const [input, setInput] = useState('');
-  const [listening, setListening] = useState(false);
-  const [voiceError, setVoiceError] = useState('');
+  const [voiceActive, setVoiceActive] = useState(false);
   const [thinking, setThinking] = useState(false);
   const [configured, setConfigured] = useState(false);
   const latest = useRef<HTMLDivElement>(null);
   const sending = useRef(false);
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
   useEffect(() => {
     if (open)
       void fetch('/api/guide')
@@ -2215,7 +2219,7 @@ function MenuAssistant({
     });
   }, [messages, thinking]);
   async function send(text: string) {
-    if (!text.trim() || sending.current) return;
+    if (!text.trim() || sending.current || voiceActive) return;
     sending.current = true;
     setInput('');
     setMessages((m) => [...m, { role: 'user', text }]);
@@ -2240,7 +2244,7 @@ function MenuAssistant({
         ...m,
         {
           role: 'assistant',
-          text: 'ارتباط راهنما برقرار نشد. می‌توانید منو را مرور کنید یا از کاپیتان کمک بگیرید.',
+          text: 'ارتباط راهنما برقرار نشد. می‌تونین منو رو ببینین یا از کاپیتان کمک بگیرین.',
         },
       ]);
     } finally {
@@ -2248,51 +2252,21 @@ function MenuAssistant({
       sending.current = false;
     }
   }
-  function voice() {
-    type SpeechResult = {
-      results: { [key: number]: { [key: number]: { transcript: string } } };
-    };
-    type Recognition = {
-      lang: string;
-      continuous: boolean;
-      interimResults: boolean;
-      start: () => void;
-      onresult: ((e: SpeechResult) => void) | null;
-      onerror: (() => void) | null;
-      onend: (() => void) | null;
-    };
-    const w = window as unknown as {
-      SpeechRecognition?: new () => Recognition;
-      webkitSpeechRecognition?: new () => Recognition;
-    };
-    const API = w.SpeechRecognition || w.webkitSpeechRecognition;
-    if (!API) {
-      setVoiceError(
-        'این مرورگر ورودی صوتی ندارد؛ می‌توانید پیام خود را بنویسید.',
-      );
-      return;
-    }
-    const r = new API();
-    r.lang = 'fa-IR';
-    r.continuous = false;
-    r.interimResults = false;
-    r.onresult = (e) => {
-      setInput(e.results[0][0].transcript);
-      setListening(false);
-    };
-    r.onerror = () => {
-      setListening(false);
-      setVoiceError('دسترسی به میکروفون یا سرویس گفتار برقرار نشد.');
-    };
-    r.onend = () => setListening(false);
-    try {
-      setVoiceError('');
-      r.start();
-      setListening(true);
-    } catch {
-      setListening(false);
-      setVoiceError('ورودی صوتی در دسترس نیست.');
-    }
+  async function voiceLookup(
+    text: string,
+    signal: AbortSignal,
+  ): Promise<VoiceAnswer> {
+    const history = messagesRef.current
+      .slice(-8)
+      .map((m) => ({ role: m.role, text: m.text.slice(0, 1500) }));
+    const response = await fetch('/api/guide', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal,
+      body: JSON.stringify({ text, tasteContext, history }),
+    });
+    if (!response.ok) throw new Error('menu_lookup_failed');
+    return response.json();
   }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -2308,6 +2282,16 @@ function MenuAssistant({
             </DialogDescription>
           </div>
         </div>
+        <VoiceCaptain
+          open={open}
+          disabled={thinking}
+          onActive={setVoiceActive}
+          onUser={(text) => setMessages((m) => [...m, { role: 'user', text }])}
+          onResult={(answer) =>
+            setMessages((m) => [...m, { ...answer, role: 'assistant' }])
+          }
+          lookup={voiceLookup}
+        />
         <div
           className="chat-messages"
           role="log"
@@ -2409,7 +2393,9 @@ function MenuAssistant({
                       <button
                         type="button"
                         key={choice}
-                        disabled={thinking || i !== messages.length - 1}
+                        disabled={
+                          thinking || voiceActive || i !== messages.length - 1
+                        }
                         onClick={() => send(choice)}
                       >
                         {choice}
@@ -2423,7 +2409,7 @@ function MenuAssistant({
                 <button
                   className="chat-compare"
                   type="button"
-                  disabled={thinking}
+                  disabled={thinking || voiceActive}
                   onClick={() =>
                     send(
                       'این گزینه‌ها را از نظر توضیحات منو و قیمت با هم مقایسه کن',
@@ -2440,7 +2426,7 @@ function MenuAssistant({
               <span className="thinking-dots" aria-hidden="true">
                 •••
               </span>{' '}
-              دارم انتخاب‌های منو را برایتان بررسی می‌کنم…
+              دارم انتخاب‌های منو رو براتون بررسی می‌کنم…
             </output>
           )}
         </div>
@@ -2465,7 +2451,11 @@ function MenuAssistant({
               ]
             : ['انتخاب دیگری می‌خواهم', 'منوی کافه را می‌خواهم']
           ).map((t) => (
-            <button disabled={thinking} key={t} onClick={() => send(t)}>
+            <button
+              disabled={thinking || voiceActive}
+              key={t}
+              onClick={() => send(t)}
+            >
               {t}
             </button>
           ))}
@@ -2477,31 +2467,27 @@ function MenuAssistant({
             void send(input);
           }}
         >
-          <button
-            type="button"
-            aria-label="ورودی صوتی"
-            className={listening ? 'listening' : ''}
-            disabled={listening}
-            onClick={voice}
-          >
-            <Mic size={20} />
-          </button>
           <input
             maxLength={500}
             aria-label="پیام شما به راهنمای مویا"
-            placeholder={listening ? 'گوش می‌دهم…' : 'از سلیقه‌تان بگویید…'}
+            disabled={voiceActive}
+            placeholder={
+              voiceActive
+                ? 'برای نوشتن، تماس رو پایان بدین…'
+                : 'از سلیقه‌تون بگین…'
+            }
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
           <button
             type="submit"
-            disabled={thinking || !input.trim()}
+            disabled={thinking || voiceActive || !input.trim()}
             aria-label="ارسال پیام"
           >
             <ArrowLeft size={20} />
           </button>
         </form>
-        {voiceError && <p className="fineprint">{voiceError}</p>}
+
         <div className="assistant-footer">
           <span>
             {configured

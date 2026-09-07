@@ -4075,3 +4075,130 @@ textarea {
     gap: 4px;
   }
 }
+
+/* Voice companion: explicit microphone controls and quiet, restrained movement. */
+.voice-captain {
+  border: 1px solid #d8e3e7;
+  border-radius: 16px;
+  padding: 14px;
+  background: #f6f9fa;
+}
+.voice-captain-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.voice-orb {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e2ecf0;
+  color: #284c5d;
+}
+.voice-active {
+  background: #edf5f6;
+  border-color: #aec6d0;
+}
+.voice-captain-copy {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.voice-captain-copy output {
+  font-size: 14px;
+  font-weight: 600;
+}
+.voice-captain-copy small,
+.voice-notice {
+  color: #536a76;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.voice-notice {
+  margin: 10px 0 0;
+}
+.voice-start {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #244754;
+  color: white;
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.voice-start:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.voice-controls {
+  display: flex;
+  gap: 7px;
+}
+.voice-controls button {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #b7cbd3;
+  background: white;
+  color: #244754;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.voice-controls .voice-end {
+  background: #fae7e6;
+  border-color: #e9c4c2;
+  color: #8c3631;
+}
+.voice-caption {
+  margin: 12px 0 0;
+  border-top: 1px solid #d8e3e7;
+  padding-top: 10px;
+  font-size: 14px;
+  line-height: 1.9;
+  max-height: 95px;
+  overflow: auto;
+}
+.voice-error {
+  color: #8c3631;
+  font-size: 13px;
+  line-height: 1.8;
+  margin: 10px 0 0;
+}
+.voice-moving {
+  animation: voice-breathe 2s ease-in-out infinite;
+}
+@keyframes voice-breathe {
+  50% {
+    box-shadow: 0 0 0 5px #284c5d12;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voice-moving {
+    animation: none;
+  }
+}
+@media (max-width: 480px) {
+  .voice-captain-row {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .voice-orb {
+    width: 38px;
+    height: 38px;
+  }
+  .voice-captain-copy {
+    min-width: 140px;
+  }
+  .voice-start {
+    margin-inline-start: auto;
+  }
+}
