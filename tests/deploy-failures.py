@@ -10,10 +10,12 @@ import subprocess
 import tempfile
 
 MOCK = r'''#!/usr/bin/env python3
-import json,os,sys
+import json,os,sys,fcntl
 from pathlib import Path
 cmd=Path(sys.argv[0]).name; args=sys.argv[1:]
 root=Path(os.environ['MOYA_TEST_ROOT']); scenario=os.environ['MOYA_TEST_SCENARIO']
+lock=(root/'mock.lock').open('w')
+fcntl.flock(lock,fcntl.LOCK_EX)
 state_path=root/'mock-state.json'; state=json.loads(state_path.read_text())
 state['calls'].append([cmd,*args]); sha='b'*40
 def done(code=0, output=''):
