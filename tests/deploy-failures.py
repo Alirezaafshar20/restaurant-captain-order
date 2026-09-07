@@ -38,11 +38,14 @@ if cmd=='docker':
  if args[0]=='inspect': done(output='true')
  if args[0]=='exec':
   name=args[1]
+  if '--input-type=module' in args: done(output='Authorization: Basic dGVzdDp0ZXN0')
   if name!='moya-aaaaaaaaaaaa-1':
    if scenario=='preflight-failure' or (scenario=='live-failure' and state.get('runs',0)>1): done(1)
   done()
  if args[0]=='run':
   if '--name' in args:
+   published=args[args.index('--publish')+1]
+   if published==f"127.0.0.1:{state['active_port']}:3000": done(1)
    state['runs']=state.get('runs',0)+1
    state['containers'].append(args[args.index('--name')+1])
   done(output='test-container')
@@ -54,7 +57,14 @@ if cmd=='nginx':
  done()
 if cmd=='curl':
  state['curl_reads']=state.get('curl_reads',0)+1
- done(output='503' if scenario=='proxy-failure' and state['curl_reads']>1 else '401')
+ switched=str(state['active_port']) not in (root/'etc/nginx/moya-upstream.conf').read_text()
+ if scenario=='proxy-failure' and switched: done(output='503')
+ if scenario=='delayed-reload' and switched and state['curl_reads']<5: done(output='502')
+ if args[-1].endswith('/healthz'):
+  release='a'*40 if not switched or scenario=='wrong-release' else sha
+  Path(args[args.index('--output')+1]).write_text(json.dumps({'ok':True,'release':release}))
+  done(output='200')
+ done(output='401')
 if cmd=='systemctl':
  if scenario=='reload-failure' and '3102' in (root/'etc/nginx/moya-upstream.conf').read_text(): done(1)
  done()
@@ -69,7 +79,8 @@ root_check = "[[ $EUID -eq 0 ]] || { echo 'Run with sudo bash deploy.sh'; exit 1
 assert root_check in script
 scenarios = ['fetch-failure', 'corrupt-source', 'dirty-source', 'build-failure',
              'wrong-image', 'branch-advanced', 'preflight-failure', 'live-failure',
-             'nginx-failure', 'reload-failure', 'proxy-failure', 'wrong-expected-sha', 'success']
+             'nginx-failure', 'reload-failure', 'proxy-failure', 'wrong-expected-sha',
+             'wrong-release', 'success', 'success-other-port', 'success-first', 'delayed-reload']
 for scenario in scenarios:
     with tempfile.TemporaryDirectory(prefix='moya-deploy-test-') as directory:
         root = Path(directory)
@@ -79,12 +90,15 @@ for scenario in scenarios:
         (root/'etc/moya/app.env').write_text('PUBLIC_ORIGIN=https://192.0.2.1\n')
         (root/'etc/nginx/conf.d/moya-app.conf').write_text('# test placeholder\n')
         upstream = root/'etc/nginx/moya-upstream.conf'
-        upstream.write_text('proxy_pass http://127.0.0.1:3101;\n')
+        active_port = 3102 if scenario=='success-other-port' else 3101
+        next_port = 3101 if active_port==3102 else 3102
+        upstream.write_text(f'proxy_pass http://127.0.0.1:{active_port};\n')
         active = root/'opt/moya/active.json'
-        original = {'container':'moya-aaaaaaaaaaaa-1','sha':'a'*40,'image':'moya:old','port':3101}
-        active.write_text(json.dumps(original))
+        original = {'container':'moya-aaaaaaaaaaaa-1','sha':'a'*40,'image':'moya:old','port':active_port}
+        if scenario!='success-first': active.write_text(json.dumps(original))
         state_file = root/'mock-state.json'
-        state_file.write_text(json.dumps({'calls':[], 'containers':[original['container']]}))
+        state_file.write_text(json.dumps({'calls':[], 'active_port':active_port,
+            'containers':[] if scenario=='success-first' else [original['container']]}))
         for name in ('git','docker','nginx','curl','systemctl','sleep','chown','install'):
             tool = root/'bin'/name; tool.write_text(MOCK); tool.chmod(0o755)
         adapted = script.replace(root_check, ': # root check is outside this isolated test')
@@ -95,10 +109,10 @@ for scenario in scenarios:
         result = subprocess.run(args, env={**os.environ, 'PATH':str(root/'bin')+os.pathsep+os.environ['PATH'],
             'MOYA_TEST_ROOT':str(root),'MOYA_TEST_SCENARIO':scenario}, capture_output=True,text=True,timeout=30)
         state = json.loads(state_file.read_text())
-        if scenario=='success':
+        if scenario.startswith('success') or scenario=='delayed-reload':
             assert result.returncode==0, result.stdout+result.stderr
             assert json.loads(active.read_text())['sha']=='b'*40
-            assert '3102' in upstream.read_text()
+            assert str(next_port) in upstream.read_text()
             assert original['container'] not in state['containers']
             assert len(state['containers'])==1
         else:

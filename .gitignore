@@ -27,6 +27,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local environment
+/moya secret password.txt
 .env*
 .dev.vars
 .dev.vars.*

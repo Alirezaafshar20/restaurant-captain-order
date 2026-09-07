@@ -49,6 +49,26 @@ health() {
   echo "Health checks failed for $name. Inspect locally with: sudo docker logs $name"
   return 1
 }
+wait_proxy() {
+  local container=$1 expected_sha=$2 access_code=000 health_code=000
+  local response="$ROOT/proxy-health.json"
+  # Reload is asynchronous. A 401 from an old worker does not prove cutover.
+  for ((probe=0; probe<25; probe++)); do
+    access_code=$(curl --disable --noproxy '*' --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 3 --resolve "$origin:443:127.0.0.1" "https://$origin/api/workspace") || access_code=000
+    if [[ $access_code == 401 ]]; then
+      # Credentials travel through a pipe, never command arguments or log output.
+      health_code=$(docker exec "$container" node --input-type=module -e 'process.stdout.write("Authorization: Basic " + Buffer.from(process.env.MOYA_ADMIN_USER + ":" + process.env.MOYA_ADMIN_PASSWORD).toString("base64") + "\n")' | \
+        curl --disable --noproxy '*' --silent --show-error --header @- --output "$response" --write-out '%{http_code}' --max-time 3 --resolve "$origin:443:127.0.0.1" "https://$origin/healthz") || health_code=000
+      if [[ $health_code == 200 ]] && jq -e --arg sha "$expected_sha" '.ok == true and .release == $sha' "$response" >/dev/null 2>&1; then
+        return 0
+      fi
+    fi
+    sleep 1
+  done
+  echo "HTTPS readiness failed: private route HTTP $access_code; authenticated health HTTP $health_code; expected commit $expected_sha."
+  echo 'Inspect locally: sudo tail -n 30 /var/log/nginx/error.log'
+  return 1
+}
 cleanup() {
   local status=$?
   trap - EXIT
@@ -57,6 +77,10 @@ cleanup() {
       cp "$ROOT/upstream.before" "$upstream"
       if ! nginx -t || ! systemctl reload nginx; then
         echo 'CRITICAL: routing recovery failed. Candidate retained; inspect Nginx before retrying.'
+        exit 1
+      fi
+      if [[ -n ${old:-} ]] && ! wait_proxy "$old" "$(jq -er .sha "$active")"; then
+        echo 'CRITICAL: previous HTTPS route is not ready. Both containers retained for inspection.'
         exit 1
       fi
     fi
@@ -96,7 +120,7 @@ print(u.hostname)
 PY
 )
 # Verify the certificate and private login boundary through Nginx before changing anything.
-code=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 15 --resolve "$origin:443:127.0.0.1" "https://$origin/")
+code=$(curl --disable --noproxy '*' --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 15 --resolve "$origin:443:127.0.0.1" "https://$origin/")
 [[ $code == 401 || $code == 502 ]] || { echo "Unexpected HTTPS status: $code"; exit 1; }
 
 repo="$ROOT/repository.git"
@@ -130,7 +154,7 @@ if [[ -f $active ]]; then
   old=$(jq -er .container "$active")
   old_port=$(jq -er .port "$active")
   [[ $old_port == 3101 || $old_port == 3102 ]] || exit 1
-  [[ $old_port == 3101 ]] && port=3102
+  if [[ $old_port == 3101 ]]; then port=3102; else port=3101; fi
   health "$old"
   # A reboot after committing the switch can leave the retired container running.
   if [[ -f $ROOT/previous.json ]]; then
@@ -174,8 +198,7 @@ switched=1
 write_upstream "$port"
 nginx -t
 systemctl reload nginx
-code=$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 15 --resolve "$origin:443:127.0.0.1" "https://$origin/api/workspace")
-[[ $code == 401 ]] || { echo 'Private access check through HTTPS failed'; exit 1; }
+wait_proxy "$candidate" "$sha"
 jq -n --arg container "$candidate" --arg sha "$sha" --arg image "$image" --argjson port "$port" '{container:$container,sha:$sha,image:$image,port:$port}' > "$active.new"
 [[ ! -f $active ]] || cp "$active" "$ROOT/previous.json"
 mv "$active.new" "$active"

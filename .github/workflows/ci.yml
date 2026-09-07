@@ -18,6 +18,11 @@ jobs:
           shellcheck --severity=warning deploy/*.sh
       - name: Verify failed deployments preserve the active release
         run: python3 tests/deploy-failures.py
+      - name: Verify cutover through real Nginx and TLS
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y nginx
+          sudo python3 tests/proxy-readiness.py
       - name: Build image and run release checks inside Linux
         run: docker build --build-arg RELEASE_SHA="$GITHUB_SHA" --tag moya:ci .
       - name: Test read-only container with persistent SQLite

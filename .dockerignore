@@ -1,4 +1,5 @@
 .git
+moya secret password.txt
 node_modules
 dist
 dist-node
