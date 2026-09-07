@@ -1,4 +1,4 @@
-import { menu, money } from './menu.ts';
+import { menu, money, isBeverage } from './menu.ts';
 const normalize = (t: string) =>
   t
     .toLowerCase()
@@ -17,7 +17,7 @@ export function guide(
   const available = menu
     .filter((m) => !unavailable.includes(m.id))
     .toSorted((a, b) => rank(a.id) - rank(b.id));
-  if (/بدون|نمی.?خوا|دوست ندار|نه /.test(t))
+  if (/بدون|نمی.?خوا|دوست ندار|(?:^|\s)نه(?:\s|$)/.test(t))
     return {
       text: 'برای کنار گذاشتن یک ماده یا انتخاب مطابق محدودیت شما، ترکیب سس‌ها و شیوهٔ آماده‌سازی هم مهم است. راهنمای فعلی نبودن آن ماده را تضمین نمی‌کند؛ کاپیتان می‌تواند با آشپزخانه هماهنگ کند.',
       items: [],
@@ -33,7 +33,9 @@ export function guide(
       items: [],
     };
   const mentions = available.filter(
-    (m) => t.includes(normalize(m.name)) || t.includes(m.en.toLowerCase()),
+    (m) =>
+      t.includes(normalize(m.name)) ||
+      (m.en.trim().length > 0 && t.includes(m.en.toLowerCase())),
   );
   if (mentions.length)
     return {
@@ -52,7 +54,13 @@ export function guide(
     };
   let candidates = available;
   let reason = 'از منوی مویا، این گزینه‌ها را می‌توانید بررسی کنید:';
-  if (/دریایی|ماهی|میگو/.test(t)) {
+  if (/صبحانه|املت|پنکیک|وافل/.test(t)) {
+    candidates = available.filter((m) => m.category === 'صبحانه');
+    reason = 'از منوی صبحانهٔ مویا، این انتخاب‌ها را ببینید:';
+  } else if (/نوشیدنی سرد|بار سرد|ماکتل|موجیتو|لیموناد/.test(t)) {
+    candidates = available.filter((m) => m.category === 'نوشیدنی سرد');
+    reason = 'از نوشیدنی‌های سرد مویا:';
+  } else if (/دریایی|ماهی|میگو/.test(t)) {
     candidates = available.filter((m) =>
       /ماهی|میگو|سیبس|اسکوید/.test(m.description + ' ' + m.name),
     );
@@ -78,7 +86,10 @@ export function guide(
     candidates = available.filter(
       (m) =>
         m.category === 'نوشیدنی گرم' &&
-        /اسپرسو|قهوه|لاته|کاپوچینو/.test(m.name + ' ' + m.description),
+        /اسپرسو|قهوه|لاته|لته|کاپوچینو|آمریکانو|فرنچ پرس|کافی|بیچرین/.test(
+          m.name + ' ' + m.description,
+        ) &&
+        !/رویبوش/.test(m.description + m.name),
     );
     reason = 'از انتخاب‌های قهوهٔ مویا:';
   } else if (/چای/.test(t) && !/قهوه/.test(t)) {
@@ -87,8 +98,8 @@ export function guide(
     );
     reason = 'از انتخاب‌های چای مویا:';
   } else if (/قهوه|نوشیدنی|چای/.test(t)) {
-    candidates = available.filter((m) => m.category === 'نوشیدنی گرم');
-    reason = 'از بخش نوشیدنی‌های گرم مویا:';
+    candidates = available.filter((m) => isBeverage(m.category));
+    reason = 'از بخش نوشیدنی‌های مویا:';
   } else if (/سالاد|سبک/.test(t)) {
     candidates = available.filter((m) => m.category === 'سالاد');
     reason =

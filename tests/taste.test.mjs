@@ -7,15 +7,26 @@ import {
   recommend,
   portableProfile,
 } from '../lib/taste.ts';
-import { menu } from '../lib/menu.ts';
+import { menu, cafeCategories } from '../lib/menu.ts';
 import { guide } from '../lib/guide.ts';
 const now = '2026-09-06T18:00:00.000Z';
 test('coffee-only and tea-only requests remain distinct without an AI key', () => {
-  assert.deepEqual(
-    new Set(guide('قهوه پیشنهاد بده').items),
-    new Set(['espresso', 'latte', 'cappuccino']),
+  const coffees = guide('قهوه پیشنهاد بده').items.map((id) =>
+    menu.find((m) => m.id === id),
   );
-  assert.ok(guide('چای پیشنهاد بده').items.every((id) => id.endsWith('-tea')));
+  assert.equal(coffees.length, 3);
+  assert.ok(
+    coffees.every(
+      (m) =>
+        /اسپرسو|قهوه|کافی|لاته|کاپوچینو/.test(m.name + m.description) &&
+        !/رویبوش/.test(m.name + m.description),
+    ),
+  );
+  assert.ok(
+    guide('چای پیشنهاد بده').items.every((id) =>
+      /چای/.test(menu.find((m) => m.id === id).name),
+    ),
+  );
 });
 const run = (context, knowledge = [], feedback = [], unavailable = []) =>
   recommend(
@@ -47,9 +58,7 @@ test('asks visit purpose first and keeps a cafe-only visit out of main dishes', 
   assert.ok(d.selected.length > 0);
   assert.ok(
     d.ranked.every((r) =>
-      ['دسر', 'نوشیدنی گرم'].includes(
-        menu.find((m) => m.id === r.itemId).category,
-      ),
+      cafeCategories.includes(menu.find((m) => m.id === r.itemId).category),
     ),
   );
 });

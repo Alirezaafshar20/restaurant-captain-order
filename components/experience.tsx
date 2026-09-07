@@ -52,6 +52,7 @@ import {
   label,
   menuSource,
   type MenuItem,
+  isBeverage,
 } from '@/lib/menu';
 import {
   initialState,
@@ -85,17 +86,19 @@ function elapsed(s: string) {
   );
 }
 function Plate({ item }: { item: MenuItem }) {
-  return item.image ? (
+  const [failedImage, setFailedImage] = useState<string | null>(null);
+  return item.image && failedImage !== item.image ? (
     <img
       src={item.image}
       alt={item.name}
       loading="lazy"
       className="food-photo"
+      onError={() => setFailedImage(item.image || null)}
     />
   ) : (
     <div className={'menu-art art-' + item.category}>
       <span>
-        {item.category === 'نوشیدنی گرم' ? (
+        {isBeverage(item.category) ? (
           <Coffee />
         ) : item.category === 'سالاد' ? (
           <Leaf />
@@ -105,7 +108,9 @@ function Plate({ item }: { item: MenuItem }) {
           <Utensils />
         )}
       </span>
-      <small>MOYA CUISINE</small>
+      <small>
+        {item.image ? 'عکس فعلاً بارگذاری نشد' : 'عکس این آیتم در منو ثبت نشده'}
+      </small>
     </div>
   );
 }
@@ -359,14 +364,8 @@ export default function Experience({
               cartIds={draft.map((d) => d.menuId)}
               onCaptain={() => openService()}
               onItem={(id) => openDetail(menu.find((m) => m.id === id)!)}
-              onOccasion={(occasion) => {
-                setCategory(
-                  occasion === 'cafe'
-                    ? 'نوشیدنی گرم'
-                    : occasion === 'dining'
-                      ? 'غذای اصلی'
-                      : 'همه',
-                );
+              onOccasion={() => {
+                setCategory('همه');
                 setSearch('');
               }}
             />
@@ -471,6 +470,34 @@ export default function Experience({
                   )}
                 </label>
               </div>
+              <div className="menu-scope" aria-label="بخش‌های منو">
+                {(
+                  [
+                    ['both', 'تمام منو'],
+                    ['cafe', 'کافه و دسر'],
+                    ['dining', 'غذا و صبحانه'],
+                  ] as const
+                ).map(([scope, title]) => (
+                  <button
+                    type="button"
+                    key={scope}
+                    aria-pressed={(taste.context.occasion || 'both') === scope}
+                    onClick={() => {
+                      taste.setContext({ ...taste.context, occasion: scope });
+                      setCategory('همه');
+                      setSearch('');
+                    }}
+                  >
+                    {title}{' '}
+                    <span>
+                      {label(
+                        menu.filter((m) => inOccasion(m.category, scope))
+                          .length,
+                      )}
+                    </span>
+                  </button>
+                ))}
+              </div>
               <Tabs
                 value={category}
                 onValueChange={(v) => setCategory(String(v))}
@@ -484,17 +511,53 @@ export default function Experience({
                     )
                     .map((c) => (
                       <TabsTrigger key={c} value={c}>
-                        {c}
+                        {c === 'همه' ? 'همهٔ این بخش' : c}{' '}
+                        <span className="category-count">
+                          {label(
+                            menu.filter(
+                              (m) =>
+                                inOccasion(
+                                  m.category,
+                                  taste.context.occasion,
+                                ) &&
+                                (c === 'همه' || m.category === c),
+                            ).length,
+                          )}
+                        </span>
                       </TabsTrigger>
                     ))}
                 </TabsList>
                 <TabsContent value={category}>
                   <div className="menu-heading">
                     <span>
-                      {category === 'همه' ? 'همهٔ انتخاب‌ها' : category}{' '}
-                      <small> / {label(filtered.length)} مورد</small>
+                      {category === 'همه' ? 'همهٔ انتخاب‌های این بخش' : category}{' '}
+                      <small>
+                        {' '}
+                        / نمایش {label(filtered.length)} از {label(menu.length)}{' '}
+                        آیتم منو
+                      </small>
                     </span>
-                    <span>قیمت‌ها به تومان</span>
+                    {category !== 'همه' ||
+                    search ||
+                    (taste.context.occasion &&
+                      taste.context.occasion !== 'both') ? (
+                      <button
+                        type="button"
+                        className="menu-reset"
+                        onClick={() => {
+                          taste.setContext({
+                            ...taste.context,
+                            occasion: 'both',
+                          });
+                          setCategory('همه');
+                          setSearch('');
+                        }}
+                      >
+                        نمایش تمام منو <ArrowLeft size={14} />
+                      </button>
+                    ) : (
+                      <span>قیمت‌ها به تومان</span>
+                    )}
                   </div>
                   {filtered.length === 0 ? (
                     <div className="empty-state">
@@ -506,6 +569,10 @@ export default function Experience({
                         onClick={() => {
                           setSearch('');
                           setCategory('همه');
+                          taste.setContext({
+                            ...taste.context,
+                            occasion: 'both',
+                          });
                         }}
                       >
                         نمایش همهٔ منو
@@ -585,7 +652,7 @@ export default function Experience({
                   منبع: منوی رسمی مویا <ArrowUpLeft size={12} />
                 </a>
                 <span>
-                  اطلاعات و قیمت‌های منتخب منو · نیازمند تأیید نهایی رستوران
+                  منوی غذا و نوشیدنی مویا · موجودی روز با رستوران هماهنگ می‌شود
                 </span>
               </div>
             </footer>

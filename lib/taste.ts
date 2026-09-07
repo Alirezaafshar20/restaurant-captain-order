@@ -1,4 +1,4 @@
-import { menu, categories } from './menu.ts';
+import { menu, categories, cafeCategories, isBeverage } from './menu.ts';
 
 export const policyVersion = 'moya-taste-1';
 export const flavorLabels = {
@@ -87,7 +87,11 @@ function check(ok: unknown, message: string): asserts ok {
   if (!ok) throw new Error(message);
 }
 const ids = menu.map((m) => m.id);
-function list(value: unknown, allowed: string[], max = 46): string[] {
+function list(
+  value: unknown,
+  allowed: string[],
+  max = allowed.length,
+): string[] {
   check(
     Array.isArray(value) &&
       value.length <= max &&
@@ -140,8 +144,8 @@ export function parseContext(value: unknown): TasteContext {
   };
 }
 export function inOccasion(category: string, occasion: Occasion) {
-  if (occasion === 'cafe') return ['نوشیدنی گرم', 'دسر'].includes(category);
-  if (occasion === 'dining') return category !== 'نوشیدنی گرم';
+  if (occasion === 'cafe') return cafeCategories.includes(category);
+  if (occasion === 'dining') return !isBeverage(category);
   return true;
 }
 export function parseKnowledge(value: unknown, now: string): Knowledge {

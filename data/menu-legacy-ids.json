@@ -1,0 +1,232 @@
+{
+  "8c7612dc-b990-4dd4-a3f5-8d03edad8baf": {
+    "id": "ribeye",
+    "name": "ریب آی",
+    "en": "Ribeye"
+  },
+  "bfff4bf8-d4f1-4ba5-ae1e-f7dfae564c5e": {
+    "id": "seabass",
+    "name": "ماهی سیبس",
+    "en": "Seabass"
+  },
+  "b21fcba1-f580-4c0e-9762-32c565641ea0": {
+    "id": "filet",
+    "name": "فیله استیک",
+    "en": "Filet Steak"
+  },
+  "135316ae-c319-40f7-a85d-8a7592073461": {
+    "id": "argentine",
+    "name": "استیک آرژانتینی",
+    "en": "Argentinian Steak"
+  },
+  "2f7bbead-50d2-4efb-bfab-4656a4624a92": {
+    "id": "rib-burger",
+    "name": "ریب برگر",
+    "en": "Rib Burger"
+  },
+  "aa87efe9-2aa2-41fb-96ac-79626e29227f": {
+    "id": "cajun",
+    "name": "کیجون کوتالتا",
+    "en": "Cajun Cutlet"
+  },
+  "56af8000-d5b4-411a-989a-eed5a27ef105": {
+    "id": "rice-meat",
+    "name": "پلو گوشت",
+    "en": "Lamb & Rice"
+  },
+  "f9309de8-938f-4afb-8815-9af9054505f0": {
+    "id": "entrecote",
+    "name": "انتراکت استیک",
+    "en": "Entrecôte"
+  },
+  "7d4d182e-94dc-4581-b4be-7093d7e9540c": {
+    "id": "bbq-burger",
+    "name": "باربیکیو برگر",
+    "en": "Barbecue Burger"
+  },
+  "17ce55b3-a0a4-439c-b517-8d0c6aed655c": {
+    "id": "neck",
+    "name": "گردن شاندیزی",
+    "en": "Braised Lamb Neck"
+  },
+  "d30af28b-7324-4de9-b159-5f8f95144570": {
+    "id": "shank",
+    "name": "ماهیچه مدرن مویا",
+    "en": "MOYA Lamb Shank"
+  },
+  "ce767db7-dc36-4dc3-bde9-3fb92c8c3f4f": {
+    "id": "ghalieh",
+    "name": "قلیه ماهی مویا",
+    "en": "Southern Fish"
+  },
+  "850f5573-c2f5-45de-bc1e-2c4050cb7d98": {
+    "id": "fresca",
+    "name": "سالاد فرسکا",
+    "en": "Fresca Salad"
+  },
+  "16953493-bb3a-4397-9efa-41cf9207ff87": {
+    "id": "caesar",
+    "name": "سالاد سزار",
+    "en": "Caesar Salad"
+  },
+  "110f6d9b-daa5-4e4e-84b5-63d1105922e6": {
+    "id": "cobb",
+    "name": "کوب سالاد",
+    "en": "Cobb Salad"
+  },
+  "b075308e-11f5-4d96-969e-0b6282cdf12b": {
+    "id": "garden",
+    "name": "گاردن کانتیننتال",
+    "en": "Garden Continental"
+  },
+  "6459e67d-c6bf-408c-a7a7-df2a1ecfbaa8": {
+    "id": "potato",
+    "name": "وِگن پوتیتو",
+    "en": "Roasted Potato"
+  },
+  "dde12d4f-6553-4219-8395-8ff123693b5c": {
+    "id": "beef-zucchini",
+    "name": "بیف زوکینی",
+    "en": "Beef Zucchini"
+  },
+  "58f6718c-e7e0-474e-801d-6847ffc78613": {
+    "id": "fritti",
+    "name": "فریتی دیماره",
+    "en": "Fritti di Mare"
+  },
+  "c36fcc84-6536-4678-902d-8f724fba5bfe": {
+    "id": "melanzane",
+    "name": "کازا ملانزانه",
+    "en": "Casa Melanzane"
+  },
+  "6b29210f-84ea-42d6-afe7-bf9ff0af2f62": {
+    "id": "hummus",
+    "name": "چیکن حمص",
+    "en": "Chicken Hummus"
+  },
+  "cb6d8e61-760b-44c8-a986-9a75f3680112": {
+    "id": "platter",
+    "name": "پلاتر مزه مویا",
+    "en": "MOYA Mezze"
+  },
+  "14af91ce-4d04-4c92-be2c-a4ffcb831ae7": {
+    "id": "avocado",
+    "name": "اسمش آووکادو",
+    "en": "Smashed Avocado"
+  },
+  "d4782122-6d5e-4de9-94ec-9a51d3615208": {
+    "id": "soup",
+    "name": "سوپ روز",
+    "en": "Soup of the Day"
+  },
+  "ab242be3-5a41-4a0c-b1f9-f4e00fa01934": {
+    "id": "ragu",
+    "name": "تالیاتله راگو",
+    "en": "Tagliatelle Ragù"
+  },
+  "dc0e55b5-28fb-4422-bd1b-f357401aab6b": {
+    "id": "lasagna",
+    "name": "لازانیا مویا",
+    "en": "MOYA Lasagna"
+  },
+  "62cf645a-4540-4442-8b4d-f4448bea6aae": {
+    "id": "rosa",
+    "name": "پاپاردله رزا",
+    "en": "Pappardelle Rosa"
+  },
+  "44fd531c-fee4-48ac-8f7a-77e3f8c3b5a6": {
+    "id": "pesto-pasta",
+    "name": "پاستا کرم پستو",
+    "en": "Creamy Pesto"
+  },
+  "3ca319ac-d6dd-47f9-8cb2-31974908ab7b": {
+    "id": "marinara",
+    "name": "مارینارا ریکوتا",
+    "en": "Marinara Ricotta"
+  },
+  "e69885ff-a2f8-48f8-a7b2-39e5bb436cea": {
+    "id": "carbonara",
+    "name": "پیتزا کربونارا",
+    "en": "Carbonara Pizza"
+  },
+  "98e01cf0-1a26-4c0c-afd2-2ffd98933ef2": {
+    "id": "vegetable-pizza",
+    "name": "پیتزا سبزیجات",
+    "en": "Vegetable Pizza"
+  },
+  "c37c3497-ee03-47f7-aea1-af993e61d818": {
+    "id": "steak-pizza",
+    "name": "پیتزا استیک",
+    "en": "Steak Pizza"
+  },
+  "f0580fde-cae8-4d75-8e94-bf1697181499": {
+    "id": "chicken-pizza",
+    "name": "چیکن پستو",
+    "en": "Chicken Pesto Pizza"
+  },
+  "f415d9fc-47e2-49af-857e-be76839bdbf9": {
+    "id": "pepperoni",
+    "name": "پپرونی",
+    "en": "Pepperoni"
+  },
+  "a762b491-190e-49f9-89fa-836ad47266ab": {
+    "id": "chicken-kebab",
+    "name": "جوجه دوآتیشه",
+    "en": "Grilled Chicken"
+  },
+  "a8c55dfe-6322-41c2-9070-b477be4680a3": {
+    "id": "lamb-chops",
+    "name": "لم چاپس",
+    "en": "Lamb Chops"
+  },
+  "ec36a8be-b86f-477a-bb4c-083b45b08a30": {
+    "id": "adana",
+    "name": "آدنا کباب",
+    "en": "Adana Kebab"
+  },
+  "eb327dc4-88f8-49bb-b360-0474f8039821": {
+    "id": "rice",
+    "name": "برنج زعفرانی",
+    "en": "Saffron Rice"
+  },
+  "c0d81e0b-10fb-4c5f-acca-835a55b5d85a": {
+    "id": "san-sebastian",
+    "name": "چیز کیک سن سباستین",
+    "en": "San Sebastián"
+  },
+  "676796b0-7e54-4190-be2c-f06630967ed6": {
+    "id": "pistachio",
+    "name": "سه شیر پسته",
+    "en": "Pistachio Tres Leches"
+  },
+  "3c6b1573-6709-4c68-85f7-572844289f2b": {
+    "id": "eclair",
+    "name": "اکلر شکلات",
+    "en": "Chocolate Éclair"
+  },
+  "806b75ee-17a3-4d2a-bc0e-aff6fdf4b4a9": {
+    "id": "espresso",
+    "name": "اسپرسو",
+    "en": "Espresso"
+  },
+  "0480f9f5-2387-439d-a1a1-d25424b3199b": {
+    "id": "latte",
+    "name": "لاته",
+    "en": "Caffè Latte"
+  },
+  "a02f4fda-c9ba-4684-9599-c04b127f21a6": {
+    "id": "cappuccino",
+    "name": "کاپوچینو",
+    "en": "Cappuccino"
+  },
+  "20739119-1d53-4372-8458-e9f23d9cb645": {
+    "id": "iranian-tea",
+    "name": "چای ایرانی",
+    "en": "Persian Tea"
+  },
+  "53a903b2-caaa-4b05-9b7c-3873f8642288": {
+    "id": "moroccan-tea",
+    "name": "چای مراکشی",
+    "en": "Moroccan Tea"
+  }
+}

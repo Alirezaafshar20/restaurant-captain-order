@@ -1,4 +1,4 @@
-import { menu } from './menu.ts';
+import { menu, isBeverage } from './menu.ts';
 
 export const guideQuestions = [
   'none',
@@ -24,7 +24,7 @@ export function guidePresentation(
     .map((id) => menu.find((m) => m.id === id))
     .filter((m) => m !== undefined);
   const allDrinks =
-    selected.length > 0 && selected.every((m) => m.category === 'نوشیدنی گرم');
+    selected.length > 0 && selected.every((m) => isBeverage(m.category));
   let lead = selected.length
     ? intent === 'compare'
       ? 'بیایید تفاوتشان را از روی منوی مویا ببینیم؛ توضیح و قیمت هر انتخاب را کنار عکسش گذاشته‌ام.'
