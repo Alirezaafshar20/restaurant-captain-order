@@ -9,7 +9,7 @@ import { VoiceConnection } from '../lib/voice-connection.ts';
 import { aiGuide } from '../lib/ai-guide.ts';
 
 const sdp = 'v=0\r\nm=audio 9 UDP/TLS/RTP/SAVPF 111\r\n';
-test('voice configuration exposes only read-only menu consultation and conversational Persian', () => {
+void test('voice configuration exposes only read-only menu consultation and conversational Persian', () => {
   const config = realtimeSession();
   assert.equal(config.model, 'gpt-realtime-2.1');
   assert.deepEqual(
@@ -23,7 +23,7 @@ test('voice configuration exposes only read-only menu consultation and conversat
   assert.match(config.instructions, /ONLY source/);
   assert.match(config.instructions, /AI assistant, not a human/);
 });
-test('voice offer validation rejects oversized and non-audio requests', () => {
+void test('voice offer validation rejects oversized and non-audio requests', () => {
   assert.equal(parseVoiceOffer(JSON.stringify({ sdp })), sdp);
   for (const body of [
     '{}',
@@ -33,7 +33,7 @@ test('voice offer validation rejects oversized and non-audio requests', () => {
   ])
     assert.throws(() => parseVoiceOffer(body));
 });
-test('voice handshake keeps credentials server-side and never relays provider errors', async () => {
+void test('voice handshake keeps credentials server-side and never relays provider errors', async () => {
   assert.equal(
     await createVoiceCall(
       sdp,
@@ -164,7 +164,7 @@ function harness(getMedia) {
     },
   };
 }
-test('voice mute and end stop every microphone track and close the connection', async () => {
+void test('voice mute and end stop every microphone track and close the connection', async () => {
   const h = harness();
   try {
     await h.voice.start();
@@ -181,7 +181,7 @@ test('voice mute and end stop every microphone track and close the connection', 
     h.restore();
   }
 });
-test('closing while microphone permission is pending cannot start a late call', async () => {
+void test('closing while microphone permission is pending cannot start a late call', async () => {
   let allow;
   const pending = new Promise((resolve) => {
     allow = resolve;
@@ -198,7 +198,7 @@ test('closing while microphone permission is pending cannot start a late call', 
     h.restore();
   }
 });
-test('duplicate voice tool events run once, and stopped calls cannot render late results', async () => {
+void test('duplicate voice tool events run once, and stopped calls cannot render late results', async () => {
   const h = harness();
   const event = {
     type: 'response.done',
@@ -240,7 +240,7 @@ test('duplicate voice tool events run once, and stopped calls cannot render late
     h.restore();
   }
 });
-test('conversational model framing is used while facts remain in server-owned cards', async () => {
+void test('conversational model framing is used while facts remain in server-owned cards', async () => {
   const run = (reply) =>
     aiGuide(
       'یه لاته می‌خوام',

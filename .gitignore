@@ -37,6 +37,9 @@ yarn-error.log*
 next-env.d.ts
 *.tsbuildinfo
 /dist/
+/dist-node/
+/runtime/
+*.sqlite*
 /.wrangler/
 /outputs/
 /work/

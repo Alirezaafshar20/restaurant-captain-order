@@ -10,7 +10,7 @@ import {
 import { menu, cafeCategories } from '../lib/menu.ts';
 import { guide } from '../lib/guide.ts';
 const now = '2026-09-06T18:00:00.000Z';
-test('coffee-only and tea-only requests remain distinct without an AI key', () => {
+void test('coffee-only and tea-only requests remain distinct without an AI key', () => {
   const coffees = guide('قهوه پیشنهاد بده').items.map((id) =>
     menu.find((m) => m.id === id),
   );
@@ -52,7 +52,7 @@ const knowledge = (id, overrides = {}) => ({
   notes: '',
   ...overrides,
 });
-test('asks visit purpose first and keeps a cafe-only visit out of main dishes', () => {
+void test('asks visit purpose first and keeps a cafe-only visit out of main dishes', () => {
   assert.equal(run(emptyContext()).action, 'ask-occasion');
   const d = run({ ...emptyContext(), occasion: 'cafe' });
   assert.ok(d.selected.length > 0);
@@ -62,7 +62,7 @@ test('asks visit purpose first and keeps a cafe-only visit out of main dishes', 
     ),
   );
 });
-test('budget, current exclusions and availability are hard constraints', () => {
+void test('budget, current exclusions and availability are hard constraints', () => {
   const item = menu.find((m) => m.category === 'نوشیدنی گرم');
   const c = { ...emptyContext(), occasion: 'both' };
   c.preferences.maxPrice = item.price;
@@ -75,7 +75,7 @@ test('budget, current exclusions and availability are hard constraints', () => {
     'handoff',
   );
 });
-test('draft knowledge cannot boost taste or promise preparation time', () => {
+void test('draft knowledge cannot boost taste or promise preparation time', () => {
   const c = { ...emptyContext(), occasion: 'both', quick: true };
   c.preferences.flavors = ['sweet'];
   const d = run(c, [knowledge('ribeye', { status: 'draft' })]);
@@ -86,7 +86,7 @@ test('draft knowledge cannot boost taste or promise preparation time', () => {
       .reasons.some((r) => r.includes('دقیقه')),
   );
 });
-test('business priority only breaks ties and cannot beat customer fit', () => {
+void test('business priority only breaks ties and cannot beat customer fit', () => {
   const c = { ...emptyContext(), occasion: 'both' };
   c.preferences.categories = ['نوشیدنی گرم'];
   const d = run(c, [knowledge('ribeye', { businessPriority: 2 })]);
@@ -96,7 +96,7 @@ test('business priority only breaks ties and cannot beat customer fit', () => {
   );
   assert.ok(d.ranked.findIndex((r) => r.itemId === 'ribeye') > 0);
 });
-test('own taste feedback changes ranking; service feedback and companions do not', () => {
+void test('own taste feedback changes ranking; service feedback and companions do not', () => {
   const c = { ...emptyContext(), occasion: 'dining' };
   const f = {
     orderItemId: 'served-self',
@@ -120,12 +120,12 @@ test('own taste feedback changes ranking; service feedback and companions do not
   c.preferences.avoidIds = ['ribeye'];
   assert.ok(!run(c, [], [f]).ranked.some((r) => r.itemId === 'ribeye'));
 });
-test('urgency suppresses proactive selling but not requested assistance', () => {
+void test('urgency suppresses proactive selling but not requested assistance', () => {
   const c = { ...emptyContext(), occasion: 'cafe', quick: true };
   assert.equal(run({ ...c, source: 'proactive' }).action, 'wait');
   assert.equal(run(c).action, 'recommend');
 });
-test('profile and kitchen knowledge validate unknown values and provenance', () => {
+void test('profile and kitchen knowledge validate unknown values and provenance', () => {
   assert.throws(() =>
     parsePreferences({
       ...emptyContext().preferences,
@@ -144,7 +144,7 @@ test('profile and kitchen knowledge validate unknown values and provenance', () 
     null,
   );
 });
-test('portable export separates personal flavor from restaurant-specific choices', () => {
+void test('portable export separates personal flavor from restaurant-specific choices', () => {
   const profile = {
     displayName: 'Private name',
     revision: 1,
@@ -162,7 +162,7 @@ test('portable export separates personal flavor from restaurant-specific choices
   assert.equal(exported.displayName, undefined);
   assert.equal(exported.sharing, 'user-controlled-export');
 });
-test('current explicit flavor outranks learned preference and old evidence fades', () => {
+void test('current explicit flavor outranks learned preference and old evidence fades', () => {
   const c = { ...emptyContext(), occasion: 'dining' };
   c.preferences.flavors = ['sweet'];
   const f = {

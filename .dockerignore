@@ -1,0 +1,17 @@
+.git
+node_modules
+dist
+dist-node
+.wrangler
+.vinext
+.next
+.env*
+.dev.vars*
+runtime
+work
+outputs
+coverage
+*.sqlite*
+*.tsbuildinfo
+.codex
+.agents

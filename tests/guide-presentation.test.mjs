@@ -5,7 +5,7 @@ import { aiGuide } from '../lib/ai-guide.ts';
 import { guidePresentation } from '../lib/guide-presentation.ts';
 import { menu } from '../lib/menu.ts';
 
-test('coffee cards have actual local restaurant assets and comparison uses published milk amounts', () => {
+void test('coffee cards have actual local restaurant assets and comparison uses published milk amounts', () => {
   for (const id of [
     'espresso',
     'latte',
@@ -26,7 +26,7 @@ test('coffee cards have actual local restaurant assets and comparison uses publi
   assert.doesNotMatch(view.lead, /کافئین|کالری|ایمن/);
 });
 
-test('cafe follow-up never asks about meat and each prompt offers one decision', () => {
+void test('cafe follow-up never asks about meat and each prompt offers one decision', () => {
   for (const ids of [[], ['espresso'], ['iranian-tea']]) {
     const view = guidePresentation(ids, 'preference', 'clarify', true);
     assert.doesNotMatch(view.followUp.text, /گوشت|مرغ|دریایی/);
@@ -38,7 +38,7 @@ test('cafe follow-up never asks about meat and each prompt offers one decision',
   );
 });
 
-test('Astra card response keeps menu facts in conversation history with a bounded useful question', async () => {
+void test('Astra card response keeps menu facts in conversation history with a bounded useful question', async () => {
   const answer = await aiGuide(
     'قهوه می‌خواهم',
     [],
@@ -75,7 +75,7 @@ test('Astra card response keeps menu facts in conversation history with a bounde
   assert.equal(answer.followUp.choices.length, 2);
 });
 
-test('off-topic and handoff suppress cards even when a provider returns item IDs', async () => {
+void test('off-topic and handoff suppress cards even when a provider returns item IDs', async () => {
   for (const intent of ['off_topic', 'handoff']) {
     const answer = await aiGuide(
       'سوال دیگری دارم',

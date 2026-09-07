@@ -53,7 +53,7 @@ function serve(f) {
   });
   f.send({ type: 'advance', itemId: f.item.id, status: 'served' });
 }
-test('server prices and order idempotency', () => {
+void test('server prices and order idempotency', () => {
   const f = fixture();
   const c = order(f);
   assert.equal(total(f.visit), 7580000);
@@ -63,7 +63,7 @@ test('server prices and order idempotency', () => {
   assert.equal(f.visit.items.length, 1);
   assert.equal(f.item.status, 'pending');
 });
-test('kitchen cannot skip captain approval or impersonate manager', () => {
+void test('kitchen cannot skip captain approval or impersonate manager', () => {
   const f = fixture();
   order(f);
   assert.throws(() =>
@@ -91,7 +91,7 @@ test('kitchen cannot skip captain approval or impersonate manager', () => {
     }),
   );
 });
-test('unknown IDs, negative quantities and unavailable food cannot order', () => {
+void test('unknown IDs, negative quantities and unavailable food cannot order', () => {
   const f = fixture();
   for (const line of [
     { menuId: 'invented', quantity: 1 },
@@ -108,7 +108,7 @@ test('unknown IDs, negative quantities and unavailable food cannot order', () =>
   assert.throws(() => order(f));
   assert.equal(f.visit.items.length, 0);
 });
-test('full lifecycle records split payment without overcharging and separates departure/cleaning', () => {
+void test('full lifecycle records split payment without overcharging and separates departure/cleaning', () => {
   const f = fixture();
   serve(f);
   assert.throws(() =>
@@ -146,7 +146,7 @@ test('full lifecycle records split payment without overcharging and separates de
   assert.notEqual(f.state.visits[0].id, f.state.visits[1].id);
   assert.equal(f.state.visits[1].items.length, 0);
 });
-test('unserved orders cannot settle; a departed visit cannot be reused', () => {
+void test('unserved orders cannot settle; a departed visit cannot be reused', () => {
   const f = fixture();
   order(f);
   assert.throws(() =>
@@ -156,7 +156,7 @@ test('unserved orders cannot settle; a departed visit cannot be reused', () => {
   g.send({ type: 'depart' });
   assert.throws(() => order(g));
 });
-test('moving a visit retains items, account and ID, and marks old table dirty', () => {
+void test('moving a visit retains items, account and ID, and marks old table dirty', () => {
   const f = fixture();
   order(f);
   const id = f.visit.id;
@@ -166,7 +166,7 @@ test('moving a visit retains items, account and ID, and marks old table dirty', 
   assert.equal(total(f.visit), 7580000);
   assert.deepEqual(f.state.dirtyTables, [1]);
 });
-test('pending change blocks kitchen release and requires explicit guest consent', () => {
+void test('pending change blocks kitchen release and requires explicit guest consent', () => {
   const f = fixture();
   order(f);
   f.send({
@@ -199,7 +199,7 @@ test('pending change blocks kitchen release and requires explicit guest consent'
   assert.equal(f.visit.requests[0].state, 'resolved');
   assert.equal(f.item.note, 'سس جدا و بدون تغییر دیگر');
 });
-test('prepared changes preserve current revision until kitchen acceptance', () => {
+void test('prepared changes preserve current revision until kitchen acceptance', () => {
   const f = fixture();
   prepare(f);
   f.send({
@@ -248,7 +248,7 @@ test('prepared changes preserve current revision until kitchen acceptance', () =
   assert.equal(f.item.note, 'سس بیشتر');
   assert.equal(f.visit.requests[0].state, 'resolved');
 });
-test('kitchen rejection preserves food and requires captain follow-up', () => {
+void test('kitchen rejection preserves food and requires captain follow-up', () => {
   const f = fixture();
   prepare(f);
   f.send({
@@ -281,7 +281,7 @@ test('kitchen rejection preserves food and requires captain follow-up', () => {
   });
   assert.equal(f.visit.requests[0].state, 'resolved');
 });
-test('preparation cancellation is applied only by kitchen and removes its charge', () => {
+void test('preparation cancellation is applied only by kitchen and removes its charge', () => {
   const f = fixture();
   prepare(f);
   f.send({ type: 'request', kind: 'change', itemId: f.item.id, text: 'لغو' });
@@ -304,7 +304,7 @@ test('preparation cancellation is applied only by kitchen and removes its charge
   });
   assert.equal(total(f.visit), 0);
 });
-test('guide never fabricates calories or allergy-safe results', () => {
+void test('guide never fabricates calories or allergy-safe results', () => {
   assert.deepEqual(guide('کالری ریب آی').items, []);
   assert.deepEqual(guide('حساسیت به گردو دارم').items, []);
   assert.deepEqual(guide('مرغ نمی‌خواهم').items, []);
@@ -313,7 +313,7 @@ test('guide never fabricates calories or allergy-safe results', () => {
     !guide('غذای دریایی می‌خواهم', ['seabass']).items.includes('seabass'),
   );
 });
-test('AI absent uses working menu fallback without any external request', async () => {
+void test('AI absent uses working menu fallback without any external request', async () => {
   const r = await aiGuide(
     'دریایی',
     [],
@@ -326,7 +326,7 @@ test('AI absent uses working menu fallback without any external request', async 
   assert.equal(r.mode, 'menu');
   assert.ok(r.items.length);
 });
-test('AI structured selection only returns server-owned prices and descriptions', async () => {
+void test('AI structured selection only returns server-owned prices and descriptions', async () => {
   const r = await aiGuide(
     'دریایی',
     [],
@@ -361,7 +361,7 @@ test('AI structured selection only returns server-owned prices and descriptions'
   assert.deepEqual(r.items, ['seabass']);
   assert.ok(r.text.includes(menu.find((m) => m.id === 'seabass').description));
 });
-test('invalid AI item ID and provider errors fail safely into menu guide', async () => {
+void test('invalid AI item ID and provider errors fail safely into menu guide', async () => {
   const r = await aiGuide(
     'دریایی',
     [],
@@ -385,7 +385,7 @@ test('invalid AI item ID and provider errors fail safely into menu guide', async
   assert.equal(r.mode, 'fallback');
   assert.ok(r.items.every((id) => menu.some((m) => m.id === id)));
 });
-test('allergy context in prior turn does not reach external model', async () => {
+void test('allergy context in prior turn does not reach external model', async () => {
   const r = await aiGuide(
     'چه پیشنهادی داری؟',
     [{ role: 'user', text: 'حساسیت به شیر دارم' }],

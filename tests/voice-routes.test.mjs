@@ -52,7 +52,7 @@ function request(owner, body, from = origin) {
     body: JSON.stringify(body),
   });
 }
-test('voice route enforces identity, same origin, input size and configured service before provider access', async () => {
+void test('voice route enforces identity, same origin, input size and configured service before provider access', async () => {
   const saved = globalThis.fetch;
   globalThis.fetch = () => {
     throw new Error('must not contact provider');
@@ -74,7 +74,7 @@ test('voice route enforces identity, same origin, input size and configured serv
     globalThis.fetch = saved;
   }
 });
-test('voice route limits session creation per owner and keeps provider secrets out of responses', async () => {
+void test('voice route limits session creation per owner and keeps provider secrets out of responses', async () => {
   const saved = globalThis.fetch;
   globalThis.__voiceEnv.OPENAI_API_KEY = 'private-test-key';
   let calls = 0;

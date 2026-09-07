@@ -5,7 +5,7 @@ import { menu, categories, cafeCategories } from '../lib/menu.ts';
 import { inOccasion } from '../lib/taste.ts';
 import { guide } from '../lib/guide.ts';
 
-test('complete food and beverage snapshot preserves existing order references and all published photos', () => {
+void test('complete food and beverage snapshot preserves existing order references and all published photos', () => {
   const legacy = JSON.parse(
     readFileSync(new URL('../data/menu-legacy-ids.json', import.meta.url)),
   );
@@ -34,7 +34,7 @@ test('complete food and beverage snapshot preserves existing order references an
   assert.ok(menu.some((m) => m.category === 'صبحانه'));
 });
 
-test('cafe filtering includes cold drinks; all-menu restores every catalog category', () => {
+void test('cafe filtering includes cold drinks; all-menu restores every catalog category', () => {
   assert.ok(inOccasion('نوشیدنی سرد', 'cafe'));
   assert.ok(!inOccasion('غذای اصلی', 'cafe'));
   assert.ok(inOccasion('صبحانه', 'dining'));
@@ -48,7 +48,7 @@ test('cafe filtering includes cold drinks; all-menu restores every catalog categ
   );
 });
 
-test('missing English titles do not match every query; cold drinks and breakfast stay in their requested sections', () => {
+void test('missing English titles do not match every query; cold drinks and breakfast stay in their requested sections', () => {
   assert.ok(menu.some((m) => m.en === ''));
   for (const [query, category] of [
     ['نوشیدنی سرد پیشنهاد بده', 'نوشیدنی سرد'],

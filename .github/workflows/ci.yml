@@ -1,0 +1,36 @@
+name: Release checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  release:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check installer and deployment scripts
+        run: |
+          for file in deploy/*.sh; do bash -n "$file"; done
+          shellcheck --severity=warning deploy/*.sh
+      - name: Verify failed deployments preserve the active release
+        run: python3 tests/deploy-failures.py
+      - name: Build image and run release checks inside Linux
+        run: docker build --build-arg RELEASE_SHA="$GITHUB_SHA" --tag moya:ci .
+      - name: Test read-only container with persistent SQLite
+        run: |
+          mkdir -p "$RUNNER_TEMP/moya-data"
+          sudo chown 1000:1000 "$RUNNER_TEMP/moya-data"
+          docker run -d --name moya-ci --read-only --tmpfs /tmp:rw,nosuid,size=128m --cap-drop ALL --security-opt no-new-privileges:true --env MOYA_ADMIN_USER=ci --env MOYA_ADMIN_PASSWORD=ci-test-only-password-123456789 --env PUBLIC_ORIGIN=http://localhost:3000 --mount "type=bind,src=$RUNNER_TEMP/moya-data,dst=/data" moya:ci
+          for attempt in $(seq 1 30); do
+            if docker exec moya-ci node scripts/health-check.mjs --full; then exit 0; fi
+            sleep 2
+          done
+          docker logs moya-ci
+          exit 1
+      - name: Container logs on failure
+        if: failure()
+        run: docker logs moya-ci || true

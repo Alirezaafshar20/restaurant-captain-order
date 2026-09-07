@@ -92,7 +92,7 @@ const send = async (owner, body) => {
   const r = await POST(request(owner, body));
   return { status: r.status, data: await r.json() };
 };
-test('profile consent, ownership, optimistic updates, learning, replay and deletion use real route SQL', async () => {
+void test('profile consent, ownership, optimistic updates, learning, replay and deletion use real route SQL', async () => {
   assert.equal(
     (await POST(request('alice', {}, 'https://other.invalid'))).status,
     403,
@@ -214,7 +214,7 @@ test('profile consent, ownership, optimistic updates, learning, replay and delet
     sqlite.prepare('SELECT owner FROM workspaces WHERE owner=?').get('alice'),
   );
 });
-test('knowledge drafts, provenance, role check and concurrent revision conflicts', async () => {
+void test('knowledge drafts, provenance, role check and concurrent revision conflicts', async () => {
   const k = {
     itemId: 'ribeye',
     revision: 0,
@@ -265,7 +265,7 @@ test('knowledge drafts, provenance, role check and concurrent revision conflicts
     400,
   );
 });
-test('deleting consent during a recommendation cannot restore its personal decision log', async () => {
+void test('deleting consent during a recommendation cannot restore its personal decision log', async () => {
   await send('race-test', {
     action: 'save-profile',
     displayName: 'TEST',
