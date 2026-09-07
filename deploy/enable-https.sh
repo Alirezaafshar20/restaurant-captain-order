@@ -20,7 +20,7 @@ except ValueError:
  print('domain')
 PY
 )
-echo 'Certificate issuance requires accepting the Let’s Encrypt Subscriber Agreement:'
+echo "Certificate issuance requires accepting the Let's Encrypt Subscriber Agreement:"
 echo 'https://letsencrypt.org/repository/'
 read -rp 'Accept the agreement and request a certificate for this address? Type yes: ' consent
 [[ $consent == yes ]] || { echo 'No certificate requested.'; exit 1; }
